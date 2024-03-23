@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment
+
+    @if (Environment.IsDevelopment())
+    {
+        <p>You are in development environment.</p>
+    }
+    else if (Environment.IsProduction())
+    {
+        <p>You are in production environment.</p>
+    }
+    else
+    {
+        <p>You are in another environment.</p>
+    }
+    <br />
+    <p class="lead" style="font-size: 30px;">This website is developed for the Secure Digital Health Care labs which is presented by</p>
+    <p class="lead" style="font-size: 18px;"><strong>PROF. ALEXANDRU GRADINARU</strong></p>
+    <p class="lead" style="font-size: 30px;">Developed by</p>
+    <p class="lead" style="font-size: 18px;"><strong>Ali Chahar Langi 2080424</strong></p>
+    <p class="lead" style="font-size: 18px;"><strong>ali.chaharlangi@studenti.unipd.it</strong></p>
+</div>
