@@ -41,7 +41,6 @@ namespace SecureDigitalHealthcare.Controllers
                 return NotFound();
             }
 
-            return Json(student);
             return View(student);
         }
 
@@ -78,8 +77,20 @@ namespace SecureDigitalHealthcare.Controllers
             }
             return View(student);
         }
-        public async Task<IActionResult> SeeJsonRawData([Bind] Student student)
+        public async Task<IActionResult> SeeJsonRawData(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var student = await _context.Students
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (student == null)
+            {
+                return NotFound();
+            }
+
             return await Task.FromResult(Json(student));
         }
 
