@@ -61,7 +61,6 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateDNTCaptcha(ErrorMessage = "It is invalid")]
-        /*[Bind("NationalId,FirstName,LastName,Email,Password,Gender,Birthdate,Address,Phone")]*/
         public async Task<IActionResult> Create(User user, string honeypot = "")
         {
             if (string.IsNullOrEmpty(honeypot) == false)
