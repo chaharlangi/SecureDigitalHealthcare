@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DNTCaptcha.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SecureDigitalHealthcare.Models;
 
@@ -8,14 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
 {
-    //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-    //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextDevelopment")
-    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextDevelopment' not found.")));
-
-
     builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
-            ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextDevelopment")
+            ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextDevelopment' not found.")));
+
+
+    //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
+    //  options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
+    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
 }
 else
 {
@@ -28,6 +29,44 @@ else
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAntiforgery(options =>
+{
+    // Set Cookie properties using CookieBuilder properties†.
+    options.FormFieldName = "AntiforgeryFieldname";
+    options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
+    options.SuppressXFrameOptionsHeader = false;
+});
+
+builder.Services.AddDNTCaptcha(options =>
+{
+    // options.UseSessionStorageProvider() // -> It doesn't rely on the server or client's times. Also it's the safest one.
+    // options.UseMemoryCacheStorageProvider() // -> It relies on the server's times. It's safer than the CookieStorageProvider.
+    options.UseCookieStorageProvider(SameSiteMode.Strict) // -> It relies on the server and client's times. It's ideal for scalability, because it doesn't save anything in the server's memory.
+                                                          // .UseDistributedCacheStorageProvider() // --> It's ideal for scalability using `services.AddStackExchangeRedisCache()` for instance.
+                                                          // .UseDistributedSerializationProvider()
+
+    // Don't set this line (remove it) to use the installed system's fonts (FontName = "Tahoma").
+    // Or if you want to use a custom font, make sure that font is present in the wwwroot/fonts folder and also use a good and complete font!
+    //.UseCustomFont(Path.Combine(_env.WebRootPath, "fonts", "IRANSans(FaNum)_Bold.ttf")) // This is optional.
+    .AbsoluteExpiration(minutes: 7)
+    .RateLimiterPermitLimit(10) // for .NET 7x+, Also you need to call app.UseRateLimiter() after calling app.UseRouting().
+    .ShowThousandsSeparators(false)
+    .WithNoise(0.015f, 0.015f, 1, 0.0f)
+    .WithEncryptionKey("This is my secure key!")
+    .WithNonceKey("NETESCAPADES_NONCE")
+    //.WithCaptchaImageControllerRouteTemplate("my-custom-captcha/[action]")
+    //.WithCaptchaImageControllerNameTemplate("my-custom-captcha")
+    .InputNames(// This is optional. Change it if you don't like the default names.
+        new DNTCaptchaComponent
+        {
+            CaptchaHiddenInputName = "DNTCaptchaText",
+            CaptchaHiddenTokenName = "DNTCaptchaToken",
+            CaptchaInputName = "DNTCaptchaInputText"
+        })
+    .Identifier("dntCaptcha")// This is optional. Change it if you don't like its default name.
+    ;
+});
 
 var app = builder.Build();
 
@@ -49,6 +88,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
