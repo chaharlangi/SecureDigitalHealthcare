@@ -1,5 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 
 namespace SecureDigitalHealthcare.Models;
 
@@ -24,4 +30,7 @@ public partial class User
     public string Phone { get; set; } = null!;
 
     public bool AgreeTerms { get; set; }
+
+    [ValidateNever]
+    public string ProfileImagePath { get; set; } = null!;
 }

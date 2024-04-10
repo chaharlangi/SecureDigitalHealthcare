@@ -5,6 +5,8 @@ using SecureDigitalHealthcare.Models;
 
 
 
+    //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+
 var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())

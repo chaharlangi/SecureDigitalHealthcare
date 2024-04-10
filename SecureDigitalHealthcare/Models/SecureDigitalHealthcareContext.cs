@@ -19,6 +19,7 @@ public partial class SecureDigitalHealthcareContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Student>(entity =>
@@ -47,6 +48,9 @@ public partial class SecureDigitalHealthcareContext : DbContext
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.Password).HasColumnType("text");
             entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.ProfileImagePath)
+                .HasDefaultValue("")
+                .HasColumnType("text");
         });
 
         OnModelCreatingPartial(modelBuilder);
