@@ -28,7 +28,6 @@ namespace SecureDigitalHealthcare.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            //return View("CustomUser");
             return View(await _context.Users.ToListAsync());
         }
 
@@ -73,6 +72,7 @@ namespace SecureDigitalHealthcare.Controllers
                 //return RedirectToAction(nameof(Index));
             }
 
+
             if (profilePictureInput is not null && profilePictureInput.Length > 0)
             {
                 bool imageSave = SaveProfileImage(profilePictureInput, out string fileName);
@@ -103,10 +103,10 @@ namespace SecureDigitalHealthcare.Controllers
 
             // Generate a unique filename
             fileName = Guid.NewGuid().ToString() + fileExtension;
-
             // Store files outside public folders
-            var folder = Path.Combine(_environment.ContentRootPath, "ProfilePictures");
+            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
             var filePath = Path.Combine(folder, fileName);
+
 
             while (System.IO.File.Exists(filePath))
             {
@@ -125,7 +125,7 @@ namespace SecureDigitalHealthcare.Controllers
         private bool DeleteProfileImage(string fileName)
         {
             // Store files outside public folders
-            var folder = Path.Combine(_environment.ContentRootPath, "ProfilePictures");
+            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
             var filePath = Path.Combine(folder, fileName);
 
             if (System.IO.File.Exists(filePath))
@@ -140,7 +140,7 @@ namespace SecureDigitalHealthcare.Controllers
 
         public IActionResult GetImage(string imageName)
         {
-            var imagePath = Path.Combine(_environment.ContentRootPath, "ProfilePictures", imageName);
+            var imagePath = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName, imageName);
 
             var fileExtension = Path.GetExtension(imageName).ToLowerInvariant();
 
@@ -241,6 +241,7 @@ namespace SecureDigitalHealthcare.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
+                DeleteProfileImage(user.ProfileImagePath);
                 _context.Users.Remove(user);
             }
 

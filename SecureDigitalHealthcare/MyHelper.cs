@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace SecureDigitalHealthcare
 {
     public static class MyHelper
     {
-        public static List<string> GetErrorListFromModelState
-                                              (ModelStateDictionary modelState)
+        public static readonly string ProfilePicturesFolderName = "ProfilePictures";
+
+        public static List<string> GetErrorListFromModelState(ModelStateDictionary modelState)
         {
             var query = from state in modelState.Values
                         from error in state.Errors
@@ -14,8 +16,6 @@ namespace SecureDigitalHealthcare
             var errorList = query.ToList();
             return errorList;
         }
-
-
         public static Dictionary<string, string> GetSubmittedFormData(HttpRequest request)
         {
             Dictionary<string, string> formData = new Dictionary<string, string>();
@@ -26,5 +26,30 @@ namespace SecureDigitalHealthcare
 
             return formData;
         }
+
+        public static string GetRootProjectPath(this IWebHostEnvironment environment)
+        {
+            if (environment.IsDevelopment())
+            {
+                return environment.ContentRootPath;
+            }
+            else
+            {
+                return Directory.GetParent(environment.ContentRootPath).FullName;
+            }
+        }
+        public static string GetWWWRootProjectPath(this IWebHostEnvironment environment)
+        {
+            if (environment.IsDevelopment())
+            {
+                return environment.WebRootPath;
+            }
+            else
+            {
+                return environment.ContentRootPath;
+            }
+        }
+
+
     }
 }

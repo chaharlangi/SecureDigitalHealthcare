@@ -5,7 +5,8 @@ using SecureDigitalHealthcare.Models;
 
 
 
-    //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+//Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+//Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +100,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();
 
