@@ -1,7 +1,12 @@
 ﻿using DNTCaptcha.Core;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using SecureDigitalHealthcare.Constants;
 using SecureDigitalHealthcare.Models;
+using System.Text;
 
 
 
@@ -70,6 +75,51 @@ builder.Services.AddDNTCaptcha(options =>
     .Identifier("dntCaptcha")// This is optional. Change it if you don't like its default name.
     ;
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(PolicyConstants.MustBeAdmin, policy =>
+    {
+        policy.RequireClaim(ClaimConstants.AdminId);
+    });
+    options.AddPolicy(PolicyConstants.MustBeDoctor, policy =>
+    {
+        policy.RequireClaim(ClaimConstants.DoctorId);
+    });
+    options.AddPolicy(PolicyConstants.MustBePatient, policy =>
+    {
+        policy.RequireClaim(ClaimConstants.PatientId);
+    });
+
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+    .Build();
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
+    AddCookie(options =>
+    {
+        options.Cookie.Name = "TokenLoginCookie";
+        options.LoginPath = "/Account/Login";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+//builder.Services.AddAuthentication("Bearer")
+//    .AddJwtBearer(options =>
+//    {
+//        options.TokenValidationParameters = new TokenValidationParameters
+//        {
+//            ValidateIssuer = true,
+//            ValidateAudience = true,
+//            ValidateIssuerSigningKey = true,
+//            //ValidateLifetime = true,
+//            ValidIssuer = builder.Configuration.GetValue<string>("Authentication:Issuer"),
+//            ValidAudience = builder.Configuration.GetValue<string>("Authentication:Audience"),
+//            IssuerSigningKey = new SymmetricSecurityKey(
+//                               Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("Authentication:SecretKey")!))
+//        };
+//    });
 
 var app = builder.Build();
 

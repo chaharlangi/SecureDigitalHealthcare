@@ -31,6 +31,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-success" href="https://github.com/chaharlangi/SecureDigitalHealthcare" target="_blank">Github Repository</a>
                         </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <p>Welcome, @User.Identity.Name!</p>
+                            <a href="/Account/Logout">Logout</a>
+                        }
+                        else
+                        {
+                            <p>Please log in to continue.</p>
+                            <a href="/Account/Login">Login</a>
+                        }
                     </ul>
                 </div>
             </div>

@@ -28,7 +28,7 @@ namespace SecureDigitalHealthcare.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            return View("CustomUser");
+            //return View("CustomUser");
             return View(await _context.Users.ToListAsync());
         }
 

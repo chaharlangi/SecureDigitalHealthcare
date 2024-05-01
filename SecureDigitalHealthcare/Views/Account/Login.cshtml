@@ -1,0 +1,35 @@
+﻿@model SecureDigitalHealthcare.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Login</h1>
+
+<div>
+    <div class="card-body">
+        <form asp-action="Login" method="post">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input asp-for="Username" type="text" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" required>
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                <label asp-for="RememberMe" class="form-check-label">Remember Me</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        @if (ViewData["ValidationMessage"] != null)
+        {
+            <div class="alert alert-danger mt-3" role="alert">
+                @ViewData["ValidationMessage"]
+            </div>
+        }
+
+    </div>
+</div>
