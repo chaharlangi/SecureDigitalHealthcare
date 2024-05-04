@@ -1,0 +1,111 @@
+﻿@using SecureDigitalHealthcare.Models
+
+@{
+    ViewData["Title"] = "BookAppointment";
+}
+
+<h1>Booking an Appointment</h1>
+
+@model BookAppointmentViewModel
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    @{
+                        var profilePictureSrc = Url.Action("GetImage", "Account", new { imageName = Model.ProfilePicturePath });
+                    }
+                    <img src="@profilePictureSrc" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
+                    <h5 class="card-title">@Model.DoctorName @Model.DoctorLastName</h5>
+                    <p class="card-text">@Model.Speciality</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <h2>Availability</h2>
+            @if (Model.availabilities.Count > 0)
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var availability in Model.availabilities)
+                        {
+                            if (availability.Taken == true)
+                                continue;
+                            var duration = (availability.EndTime - availability.StartTime).TotalMinutes;
+
+                            <tr>
+                                <td>@availability.StartTime</td>
+                                <td>@availability.EndTime</td>
+                                <td>@duration°</td>
+                                <td>
+                                    <form method="post" action="@Url.Action("BookAppointment", "Appointments",
+                                    new
+                                    {
+                                        doctorId=availability.DoctorId,
+                                        startTime=availability.StartTime,
+                                        endTime=availability.EndTime,
+                                        taken=availability.Taken
+                                    })">
+                                        <button type="submit" class="btn btn-primary">Book</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No availability found.</p>
+            }
+        </div>
+    </div>
+    <!-- Comments section -->
+    <div class="row mt-5">
+        <div class="col">
+            <h4>Comments about doctor @Model.DoctorName @Model.DoctorLastName</h4>
+            <!-- Display existing comments -->
+            @foreach (var comment in Model.DoctorsComment)
+            {
+                <div class="card mb-3 bg-light  rounded-3">
+                    <div class="card-body">
+                        <h5 class="card-title">@comment.Sender.Name @comment.Sender.LastName</h5>
+                        <p class="card-text mt-2">@comment.Text</p>
+                    </div>
+                </div>
+            }
+            @if (Model.DoctorsComment.Count == 0)
+            {
+                <p>No comments found.</p>
+            }
+
+            <!-- Form to add a new comment -->
+            <h4>Add a Comment</h4>
+            <form method="post" action="@Url.Action("SubmitCommentToDoctor", "Comments",
+                new
+                {
+                    receiverId = Model.DoctorId,
+                    replyToId = -1
+                })">
+                <div class="form-group mb-2 mt-3">
+                    <textarea name="textComment" class="form-control" placeholder="Your Comment" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Comment</button>
+            </form>
+        </div>
+    </div>
+</div>

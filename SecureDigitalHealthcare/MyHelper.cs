@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
-namespace SecureDigitalHealthcare
+namespace EasyHealth
 {
     public static class MyHelper
     {
@@ -16,6 +16,24 @@ namespace SecureDigitalHealthcare
             var errorList = query.ToList();
             return errorList;
         }
+        public static string GetErrorListFromModelStateString(ModelStateDictionary modelState)
+        {
+            var query = from state in modelState.Values
+                        from error in state.Errors
+                        select error.ErrorMessage;
+
+            var errorList = query.ToList();
+
+            string message = "Pay attention:\n\n";
+            for (int i = 0; i < errorList.Count; i++)
+            {
+                string? error = errorList[i];
+                message += $"{i + 1}: " + error + "\n";
+            }
+            return message;
+        }
+
+
         public static Dictionary<string, string> GetSubmittedFormData(HttpRequest request)
         {
             Dictionary<string, string> formData = new Dictionary<string, string>();

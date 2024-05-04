@@ -2,18 +2,123 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecureDigitalHealthcare.Models;
+using EasyHealth.Models;
 using System.Security.Claims;
+using DNTCaptcha.Core;
+using System.Security.Principal;
+using Newtonsoft.Json;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SecureDigitalHealthcare.Models;
+using SecureDigitalHealthcare.Utilities;
+using SecureDigitalHealthcare.Constants;
+using Microsoft.EntityFrameworkCore;
 
-namespace SecureDigitalHealthcare.Controllers
+namespace EasyHealth.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : Controller
     {
-        [AllowAnonymous]
+        private readonly EasyHealthContext _context;
+        private readonly IWebHostEnvironment _environment;
+
+        public AccountController(EasyHealthContext context, IWebHostEnvironment environment)
+        {
+            _context = context;
+            _environment = environment;
+        }
+
+        #region Index
+        public IActionResult Index()
+        {
+            if (AppAuthentication.IsPatient(HttpContext))
+            {
+                return IndexPatient();
+            }
+            if (AppAuthentication.IsDoctor(HttpContext))
+            {
+                return IndexDoctor();
+            }
+            else if (AppAuthentication.IsAdmin(HttpContext))
+            {
+                return IndexAdmin();
+            }
+
+            return View();
+        }
+
+        public IActionResult IndexPatient()
+        {
+            return Content("Patient Dashboard");
+        }
+        IActionResult IndexDoctor()
+        {
+            return Content("Doctor Dashboard");
+        }
+        IActionResult IndexAdmin()
+        {
+            return Content("Admin Dashboard");
+        }
+        #endregion
+
+        #region Signup
+        public IActionResult Signup()
+        {
+            return View();
+        }
+
+        [ValidateAntiForgeryToken]
+        [ValidateDNTCaptcha(ErrorMessage = "It is invalid")]
+        [HttpPost, ActionName("Signup")]
+        public async Task<IActionResult> ConfirmSignup(User user, IFormFile profilePictureInput, string honeypot = "")
+        {
+            if (ModelState.IsValid == false)
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = MyHelper.GetErrorListFromModelStateString(ModelState);
+
+                return View();
+            }
+
+            if (string.IsNullOrEmpty(honeypot) == false)
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.YouAreABot;
+                return View();
+            }
+            if (_context.Users.FirstOrDefault(x => x.Email == user.Email) is not null)
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.EmailAlreadyExists;
+                return View();
+            }
+            if (DateTime.Now - user.BirthDate < TimeSpan.FromDays(365 * 18))
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.YouMustBe18;
+                return View();
+            }
+            if (profilePictureInput is not null && profilePictureInput.Length > 0)
+            {
+                bool imageSave = FileManager.SaveProfileImage(_environment, profilePictureInput, out string fileName);
+                user.ProfileImagePath = fileName;
+            }
+
+            user.RoleId = AppRole.GetRoleId(AppRole.Patient);
+            user.RegistrationDate = DateTime.Now;
+            user.Password = PasswordHasher.HashPassword(user.Password!);
+
+            _context.Users.Add(user);
+
+            await _context.SaveChangesAsync();
+
+            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, AppRole.Patient, true);
+
+            return RedirectToAction("Index", "Home");
+
+
+        }
+        #endregion
+
+        #region Login
         public IActionResult Login()
         {
-            ClaimsPrincipal claimUser = HttpContext.User;
-            if (claimUser.Identity?.IsAuthenticated == true)
+            if (AppAuthentication.IsAuthenticated(HttpContext))
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -22,42 +127,58 @@ namespace SecureDigitalHealthcare.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel user)
+        public async Task<IActionResult> Login(LoginViewModel newUser)
         {
             if (ModelState.IsValid == false)
             {
-                return Content("Invalid model state");
-                //return View("Index", user);
+                ViewData[ViewDataConstants.ValidationMessage] = MyHelper.GetErrorListFromModelStateString(ModelState);
+                return View();
             }
 
-            if (user.Username == "admin" && user.Password == "admin")
+            var user = _context.Users.Include(x => x.Role).FirstOrDefault(u => u.Email == newUser.Email);
+            if (user is null)
             {
-
-                List<Claim> claims = new()
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.UserNotFound;
+                return View();
+            }
+            if (PasswordHasher.VerifyPassword(newUser.Password!, user.Password!) == false)
             {
-                new Claim("UserName", user.Username!)
-            };
-
-                ClaimsIdentity claimsIdentity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                AuthenticationProperties authProperties = new()
-                {
-                    AllowRefresh = true,
-                    IsPersistent = user.RememberMe
-                };
-
-                await HttpContext.SignInAsync(
-                                   CookieAuthenticationDefaults.AuthenticationScheme,
-                                                  new ClaimsPrincipal(claimsIdentity),
-                                                                 authProperties);
-
-                return RedirectToAction("Index", "Home");
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.WrongPassword;
+                return View();
             }
 
-            ViewData["ValidationMessage"] = "Invalid username or password";
+            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, user.Role.Name!, newUser.RememberMe);
 
-            return View();
+            return RedirectToAction("Index", "Home");
         }
+        #endregion
+
+        #region Logout
+        public IActionResult Logout()
+        {
+            AppAuthentication.SignOut(HttpContext);
+
+            return RedirectToAction("Index", "Home");
+        }
+        #endregion
+
+        #region Utilities
+        public IActionResult GetImage(string imageName)
+        {
+            var imagePath = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName, imageName);
+
+            var fileExtension = Path.GetExtension(imageName).ToLowerInvariant();
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+                return File(imageBytes, $"image/{fileExtension}"); // Adjust content type based on your image type
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        #endregion
     }
 }

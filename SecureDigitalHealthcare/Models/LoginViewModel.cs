@@ -1,18 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecureDigitalHealthcare.Models
+namespace EasyHealth.Models
 {
     public class LoginViewModel
     {
 
         [Required]
-        public string? Username { get; set; }
+        public string? Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Required]
         public bool RememberMe { get; set; }
     }
 }

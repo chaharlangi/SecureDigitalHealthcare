@@ -1,0 +1,10 @@
+﻿@{
+    string validationMessage = ViewData[ViewDataConstants.ValidationMessage] as string;
+}
+
+@if (!string.IsNullOrEmpty(validationMessage))
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        @validationMessage
+    </div>
+}

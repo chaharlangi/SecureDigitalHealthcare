@@ -1,7 +1,7 @@
-﻿@model SecureDigitalHealthcare.Models.LoginViewModel
+﻿@model EasyHealth.Models.LoginViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Login";
 }
 
 <h1>Login</h1>
@@ -10,26 +10,28 @@
     <div class="card-body">
         <form asp-action="Login" method="post">
             <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input asp-for="Username" type="text" class="form-control" required>
+                <label class="form-label">Email</label>
+                <input asp-for="Email" type="text" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 <input asp-for="Password" type="password" class="form-control" required>
             </div>
             <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
-                <label asp-for="RememberMe" class="form-check-label">Remember Me</label>
+                <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+                <label class="form-check-label">Remember Me</label>
+            </div>
+            <div class="mb-3">
+                <div class="mb-3">
+                    <a asp-controller="Account" asp-action="SignUp" class="link-success"> You are new to our website? Create an account now!</a>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
 
-        @if (ViewData["ValidationMessage"] != null)
-        {
-            <div class="alert alert-danger mt-3" role="alert">
-                @ViewData["ValidationMessage"]
-            </div>
-        }
 
+        @{
+            await Html.RenderPartialAsync($"_{ViewDataConstants.ValidationMessage}");
+        }
     </div>
 </div>

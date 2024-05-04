@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace SecureDigitalHealthcare.Controllers
+namespace EasyHealth.Controllers
 {
     [AllowAnonymous]
     public class AuthenticationController : Controller

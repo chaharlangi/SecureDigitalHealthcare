@@ -1,36 +1,43 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 
 namespace SecureDigitalHealthcare.Models;
 
 public partial class User
 {
-    public string NationalId { get; set; } = null!;
+    public int Id { get; set; }
 
-    public string FirstName { get; set; } = null!;
+    public string? Name { get; set; }
 
-    public string LastName { get; set; } = null!;
+    public string? LastName { get; set; }
 
-    public string Email { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
 
-    public string Password { get; set; } = null!;
+    public string? Address { get; set; }
 
-    public string Gender { get; set; } = null!;
+    public string? ProfileImagePath { get; set; }
 
-    public DateTime Birthdate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
-    public string Address { get; set; } = null!;
+    public DateTime? RegistrationDate { get; set; }
 
-    public string Phone { get; set; } = null!;
+    public string? Email { get; set; }
 
-    public bool AgreeTerms { get; set; }
+    public string? Password { get; set; }
 
-    [ValidateNever]
-    public string ProfileImagePath { get; set; } = null!;
+    public int RoleId { get; set; }
+
+    public bool? AgreedTerms { get; set; }
+
+    public bool? Gender { get; set; }
+
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    public virtual ICollection<Comment> CommentReceivers { get; set; } = new List<Comment>();
+
+    public virtual ICollection<Comment> CommentSenders { get; set; } = new List<Comment>();
+
+    public virtual Doctor? Doctor { get; set; }
+
+    public virtual Role Role { get; set; } = null!;
 }

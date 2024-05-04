@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecureDigitalHealthcare.Models;
+using EasyHealth.Models;
 using System.Diagnostics;
 
-namespace SecureDigitalHealthcare.Controllers
+namespace EasyHealth.Controllers
 {
     [AllowAnonymous]
     public class HomeController : Controller

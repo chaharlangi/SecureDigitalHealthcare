@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using SecureDigitalHealthcare.Constants;
-using SecureDigitalHealthcare.Models;
+using EasyHealth.Constants;
+using EasyHealth.Models;
 using System.Text;
+using SecureDigitalHealthcare.Models;
+using SecureDigitalHealthcare.Utilities;
 
 
 
@@ -17,20 +19,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextDevelopment")
-            ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextDevelopment' not found.")));
-
-
     //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-    //  options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
-    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
+    //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextDevelopment")
+    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextDevelopment' not found.")));
+
+
+    builder.Services.AddDbContext<EasyHealthContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthDevelopment")
+            ?? throw new InvalidOperationException("Connection string 'EasyHealthDevelopment' not found.")));
+
 }
 else
 {
-    builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
-            ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
+    //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
+    //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
+    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
 }
 
 
@@ -101,7 +104,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.Cookie.Name = "TokenLoginCookie";
         options.LoginPath = "/Account/Login";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 

@@ -1,4 +1,4 @@
-namespace SecureDigitalHealthcare.Models
+namespace EasyHealth.Models
 {
     public class ErrorViewModel
     {

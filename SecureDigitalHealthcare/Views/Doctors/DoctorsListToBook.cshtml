@@ -1,0 +1,59 @@
+﻿@using SecureDigitalHealthcare.Models
+@model IEnumerable<DoctorsViewModel>
+@{
+    ViewData["Title"] = "Booking Appointment";
+}
+
+<h1>Select your doctor</h1>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+
+            <br />
+            <form method="get" action="@Url.Action("GetDoctorsByLastName", "Doctors")">
+                <div class="input-group mb-3">
+                    <input type="text" name="lastname" class="form-control" placeholder="Search by last name">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+            <form method="get" action="@Url.Action("GetDoctorsBySpeciality", "Doctors")">
+                <div class="input-group mb-3">
+                    <input type="text" name="speciality" class="form-control" placeholder="Search by speciality">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+            <br />
+
+
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var doctor in Model)
+        {
+            if (doctor.ProfilePicturePath == null)
+            {
+                doctor.ProfilePicturePath = "Default.jpg";
+            }
+
+            var profilePictureSrc = Url.Action("GetImage", "Account", new { imageName = doctor.ProfilePicturePath });
+
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <img src="@profilePictureSrc" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center">@doctor.Name @doctor.LastName</h5>
+                        <p class="card-text text-center">@doctor.Speciality</p>
+                        <div class="text-center">
+                            <a href="@Url.Action("BookAppointment", "Appointments", new { doctorId = doctor.Id })" class="btn btn-primary">Book Appointment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

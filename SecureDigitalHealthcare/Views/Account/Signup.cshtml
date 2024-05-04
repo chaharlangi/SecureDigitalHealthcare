@@ -1,0 +1,138 @@
+﻿@model SecureDigitalHealthcare.Models.User
+
+@{
+    ViewData["Title"] = "Sign up";
+}
+
+<h1>Sign up</h1>
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Signup" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group ">
+                @{
+                    var pircutreSrc = @Url.Action("GetImage", "Account", new { imageName = "Default.jpg" });
+                }
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@pircutreSrc"
+                     alt="No image"
+                     width="150"
+                     height="150" />
+                <br />
+                <label asp-for="ProfileImagePath" class="control-label">Profile Picture</label>
+                <input type="file" name="profilePictureInput" id="profilePictureInput" class="form-control" accept="image/png, image/jpeg, image/jpg" />
+                @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"> Name</label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" type="number" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" type="date" class="form-control" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <select asp-for="Gender" class="form-control">
+                    <option value="true" selected>Male</option>
+                    <option value="false">Female</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input asp-for="AgreedTerms" class="form-check-input" checked required />
+                    <label asp-for="AgreedTerms" class="form-check-label control-label">
+                        Please read our
+                        <a asp-action="Terms" target="_blank">terms</a> and agree them to proceed.
+                    </label>
+                    <span asp-validation-for="AgreedTerms" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <input class="form-control" style="display:none" name="Honeypot" />
+            </div>
+
+            <div class="form-group">
+
+                <dnt-captcha asp-captcha-generator-max="30"
+                             asp-captcha-generator-min="1"
+                             asp-captcha-generator-language="English"
+                             asp-captcha-generator-display-mode="SumOfTwoNumbers"
+                             asp-use-relative-urls="true"
+                             asp-placeholder="Security code as a number"
+                             asp-validation-error-message="Please enter the security code as a number."
+                             asp-too-many-requests-error-message="Too many requests! Please wait a minute!"
+                             asp-font-name="Tahoma"
+                             asp-font-size="20"
+                             asp-fore-color="#333333"
+                             asp-back-color="#FCF6F5FF"
+                             asp-text-box-class="form-control"
+                             asp-text-box-template="<div class='input-group'><span class='input-group-text'><span class='bi-lock'></span></span>{0}</div>"
+                             asp-validation-message-class="text-danger"
+                             asp-refresh-button-class="bi-arrow-counterclockwise btn-lg"
+                             asp-show-refresh-button="true"
+                             asp-dir="ltr" />
+
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+
+        @{
+            await Html.RenderPartialAsync($"_{ViewDataConstants.ValidationMessage}");
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.getElementById('profilePictureInput').addEventListener('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imageUrl = e.target.result;
+                document.getElementById('profilePictureImg').src = imageUrl;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    </script>
+}
