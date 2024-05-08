@@ -1,12 +1,11 @@
-﻿@using SecureDigitalHealthcare.Models
+﻿@model SecureDigitalHealthcare.DTOs.DoctorAppointmentDTO
+
 
 @{
     ViewData["Title"] = "BookAppointment";
 }
 
 <h1>Booking an Appointment</h1>
-
-@model BookAppointmentViewModel
 
 <div class="container">
     <div class="row mb-4">
@@ -28,7 +27,7 @@
     <div class="row">
         <div class="col">
             <h2>Availability</h2>
-            @if (Model.availabilities.Count > 0)
+            @if (Model.Availabilities.Count > 0)
             {
                 <table class="table">
                     <thead>
@@ -40,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var availability in Model.availabilities)
+                        @foreach (var availability in Model.Availabilities)
                         {
                             if (availability.Taken == true)
                                 continue;

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using SecureDigitalHealthcare.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace SecureDigitalHealthcare.Utilities
 {
@@ -17,6 +18,7 @@ namespace SecureDigitalHealthcare.Utilities
 
             return false;
         }
+        public static void Test(int s, int we, int y) { }
         public static async Task SignIn(HttpContext httpContext, int userId, string userName, string role, bool rememberMe)
         {
             List<Claim> claims =
@@ -27,6 +29,8 @@ namespace SecureDigitalHealthcare.Utilities
             ];
 
             ClaimsIdentity claimsIdentity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            Console.WriteLine("Remember me: " + rememberMe);
 
             AuthenticationProperties authProperties = new()
             {

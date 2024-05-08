@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using EasyHealth;
+using SecureDigitalHealthcare;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,8 @@
-﻿@model SecureDigitalHealthcare.Models.User
+﻿@using Microsoft.AspNetCore.Mvc.Routing
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@model SecureDigitalHealthcare.Models.User
+@inject SecureDigitalHealthcare.Utilities.UrlHelper<ImageController> UrlHelper
 
 @{
     ViewData["Title"] = "Sign up";
@@ -15,9 +19,23 @@
 
             <div class="form-group ">
                 @{
-                    var pircutreSrc = @Url.Action("GetImage", "Account", new { imageName = "Default.jpg" });
+
+                    // // // Generate the URL using a lambda expression
+                    // var urlHelper = new UrlHelper(httpContext.Current.Request.RequestContext);
+                    // var imageUrl = urlHelper.Action<ImageController>(c => c.GetImage("Default.jpg"));
                 }
-                <img class="rounded-circle m-3" id="profilePictureImg" src="@pircutreSrc"
+
+                @{
+
+                    // var pircutreSrc = @Url.Action("GetImage", "Image", new { imageName = "Default.jpg" });
+                }
+                @{
+                    // var pircutreSrc = Url.MyAction((AccountController c) => c.GetImage("Default.jpg"), null);
+                }
+                @{
+                    var pictureSrc = UrlHelper.Action(c => c.GetImage("Default.jpg"));
+                }
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@pictureSrc"
                      alt="No image"
                      width="150"
                      height="150" />

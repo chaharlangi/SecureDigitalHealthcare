@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using EasyHealth.Models;
+using SecureDigitalHealthcare.Models;
 using Microsoft.AspNetCore.Authorization;
 using SecureDigitalHealthcare.Models;
 
-namespace EasyHealth.Controllers
+namespace SecureDigitalHealthcare.Controllers
 {
     public class UsersController : Controller
     {

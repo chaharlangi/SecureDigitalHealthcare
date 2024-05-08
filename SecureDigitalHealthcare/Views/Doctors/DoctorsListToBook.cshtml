@@ -1,5 +1,4 @@
-﻿@using SecureDigitalHealthcare.Models
-@model IEnumerable<DoctorsViewModel>
+﻿@model IEnumerable<SecureDigitalHealthcare.DTOs.DoctorDTO>
 @{
     ViewData["Title"] = "Booking Appointment";
 }
@@ -34,11 +33,6 @@
     <div class="row">
         @foreach (var doctor in Model)
         {
-            if (doctor.ProfilePicturePath == null)
-            {
-                doctor.ProfilePicturePath = "Default.jpg";
-            }
-
             var profilePictureSrc = Url.Action("GetImage", "Account", new { imageName = doctor.ProfilePicturePath });
 
             <div class="col-md-3 mb-4">

@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using EasyHealth.Constants;
-using EasyHealth.Models;
+using SecureDigitalHealthcare.Constants;
+using SecureDigitalHealthcare.Models;
 using System.Text;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 
+var hashed = AppHasher.HashPassword("my-strong-pass-here");
+Console.WriteLine(hashed);
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -35,7 +38,6 @@ else
     //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
     //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
 }
-
 
 
 // Add services to the container.

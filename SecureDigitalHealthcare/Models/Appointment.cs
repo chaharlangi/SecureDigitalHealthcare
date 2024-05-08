@@ -5,17 +5,15 @@ namespace SecureDigitalHealthcare.Models;
 
 public partial class Appointment
 {
-    public bool Id { get; set; }
+    public int PatientId { get; set; }
 
-    public int? PatientId { get; set; }
-
-    public int? DoctorId { get; set; }
+    public int DoctorId { get; set; }
 
     public bool? Accepted { get; set; }
 
     public bool? Done { get; set; }
 
-    public DateTime? Date { get; set; }
+    public DateTime Date { get; set; }
 
     public TimeOnly? Duration { get; set; }
 
@@ -23,7 +21,7 @@ public partial class Appointment
 
     public string? Disease { get; set; }
 
-    public virtual Doctor? Doctor { get; set; }
+    public virtual Doctor Doctor { get; set; } = null!;
 
-    public virtual User? Patient { get; set; }
+    public virtual User Patient { get; set; } = null!;
 }

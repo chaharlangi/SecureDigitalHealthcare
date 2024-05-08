@@ -1,4 +1,4 @@
-﻿using EasyHealth;
+﻿using SecureDigitalHealthcare;
 
 namespace SecureDigitalHealthcare.Utilities
 {

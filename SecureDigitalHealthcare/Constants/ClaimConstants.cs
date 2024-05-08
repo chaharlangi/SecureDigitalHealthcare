@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace EasyHealth.Constants
+namespace SecureDigitalHealthcare.Constants
 {
     public static class ClaimConstants
     {

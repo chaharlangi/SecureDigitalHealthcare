@@ -33,20 +33,24 @@ public partial class EasyHealthContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
+            entity.HasKey(e => new { e.PatientId, e.DoctorId, e.Date }).HasName("PK_Appointment_1");
+
             entity.ToTable("Appointment");
 
+            entity.Property(e => e.PatientId).HasDefaultValue(-1);
+            entity.Property(e => e.DoctorId).HasDefaultValue(-1);
             entity.Property(e => e.Date).HasColumnType("datetime");
             entity.Property(e => e.Disease).HasColumnType("text");
             entity.Property(e => e.Symptom).HasColumnType("text");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.DoctorId)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Appointment_Doctor");
 
             entity.HasOne(d => d.Patient).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.PatientId)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Appointment_Patient");
         });
 

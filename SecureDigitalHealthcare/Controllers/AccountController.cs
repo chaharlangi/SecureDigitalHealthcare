@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EasyHealth.Models;
+using SecureDigitalHealthcare.Models;
 using System.Security.Claims;
 using DNTCaptcha.Core;
 using System.Security.Principal;
@@ -11,9 +11,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using SecureDigitalHealthcare.Constants;
+using SecureDigitalHealthcare.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyHealth.Controllers
+namespace SecureDigitalHealthcare.Controllers
 {
     [AllowAnonymous]
     public class AccountController : Controller
@@ -127,7 +128,7 @@ namespace EasyHealth.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel newUser)
+        public async Task<IActionResult> Login(LoginDTO newUser)
         {
             if (ModelState.IsValid == false)
             {
