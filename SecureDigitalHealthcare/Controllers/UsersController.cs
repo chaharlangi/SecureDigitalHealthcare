@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using SecureDigitalHealthcare.Models;
 using Microsoft.AspNetCore.Authorization;
 using SecureDigitalHealthcare.Models;
+using SecureDigitalHealthcare.Utilities;
 
 namespace SecureDigitalHealthcare.Controllers
 {

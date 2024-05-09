@@ -2,7 +2,6 @@
 @using SecureDigitalHealthcare.Controllers
 @using SecureDigitalHealthcare.Utilities
 @model SecureDigitalHealthcare.Models.User
-@inject SecureDigitalHealthcare.Utilities.UrlHelper<ImageController> UrlHelper
 
 @{
     ViewData["Title"] = "Sign up";
@@ -27,13 +26,13 @@
 
                 @{
 
-                    // var pircutreSrc = @Url.Action("GetImage", "Image", new { imageName = "Default.jpg" });
+                    var pictureSrc = @Url.Action("GetImage", "Image", new { imageName = "Default.jpg" });
                 }
                 @{
                     // var pircutreSrc = Url.MyAction((AccountController c) => c.GetImage("Default.jpg"), null);
                 }
                 @{
-                    var pictureSrc = UrlHelper.Action(c => c.GetImage("Default.jpg"));
+                    // var pictureSrc = UrlHelper.Action(c => c.GetImage("Default.jpg"));
                 }
                 <img class="rounded-circle m-3" id="profilePictureImg" src="@pictureSrc"
                      alt="No image"

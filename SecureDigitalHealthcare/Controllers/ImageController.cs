@@ -1,6 +1,6 @@
-﻿using SecureDigitalHealthcare;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SecureDigitalHealthcare.Utilities;
 
 namespace SecureDigitalHealthcare.Controllers
 {
@@ -13,6 +13,7 @@ namespace SecureDigitalHealthcare.Controllers
         {
             _environment = webHostEnvironment;
         }
+
 
         public IActionResult GetImage(string imageName)
         {

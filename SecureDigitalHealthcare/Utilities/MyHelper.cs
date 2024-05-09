@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
-namespace SecureDigitalHealthcare
+namespace SecureDigitalHealthcare.Utilities
 {
     public static class MyHelper
     {

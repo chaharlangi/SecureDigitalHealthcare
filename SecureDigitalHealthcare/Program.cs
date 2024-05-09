@@ -11,9 +11,25 @@ using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
+string question = "Rm9yIHRoaXMgYXNzaWdubWVudCB5b3Ugd2lsbCBoYXZlIHR3byB0YXNrcyBvbiB0aGUgYmFja2VuZDoKLSB1cGxvYWQgYSBmaWxlIHJlY2VpdmVkIHRocm91Z2ggYSBQT1NUIHJlcXVlc3QgYW5kIHN0b3JlIGl0IGxvY2FsbHkgZW5jcnlwdGVkIHdpdGggQUVTMjU2Ci0gaGFzaCB0aGUgcGFzc3dvcmQgcmVjZWl2ZWQgYnkgUE9TVCBwYXJhbWV0ZXIgd2l0aCBiY3J5cHQgYW5kIHNhdmUgaXQgbG9jYWxseSBpbiBhIEpTT04gZmlsZQ==";
+//Console.WriteLine(ROT13Cipher.Decrypt(question));
 
-var hashed = AppHasher.HashPassword("my-strong-pass-here");
-Console.WriteLine(hashed);
+// Base64
+byte[] base64Decoded = BaseConverter.Base64Decode(question);
+Console.WriteLine("Base64 Decoded: " + Encoding.UTF8.GetString(base64Decoded));
+/*
+ * For this assignment you will have two tasks on the backend:
+- upload a file received through a POST request and store it locally encrypted with AES256
+- hash the password received by POST parameter with bcrypt and save it locally in a JSON file
+ */
+///
+
+
+
+
+
+
+
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -53,13 +69,13 @@ builder.Services.AddAntiforgery(options =>
 
 builder.Services.AddDNTCaptcha(options =>
 {
-    // options.UseSessionStorageProvider() // -> It doesn't rely on the server or client's times. Also it's the safest one.
-    // options.UseMemoryCacheStorageProvider() // -> It relies on the server's times. It's safer than the CookieStorageProvider.
-    options.UseCookieStorageProvider(SameSiteMode.Strict) // -> It relies on the server and client's times. It's ideal for scalability, because it doesn't save anything in the server's memory.
-                                                          // .UseDistributedCacheStorageProvider() // --> It's ideal for scalability using `services.AddStackExchangeRedisCache()` for instance.
+    // options.UseSessionStorageProvider() // -> It doesn't rely on the server or client'question times. Also it'question the safest one.
+    // options.UseMemoryCacheStorageProvider() // -> It relies on the server'question times. It'question safer than the CookieStorageProvider.
+    options.UseCookieStorageProvider(SameSiteMode.Strict) // -> It relies on the server and client'question times. It'question ideal for scalability, because it doesn't save anything in the server'question memory.
+                                                          // .UseDistributedCacheStorageProvider() // --> It'question ideal for scalability using `services.AddStackExchangeRedisCache()` for instance.
                                                           // .UseDistributedSerializationProvider()
 
-    // Don't set this line (remove it) to use the installed system's fonts (FontName = "Tahoma").
+    // Don't set this line (remove it) to use the installed system'question fonts (FontName = "Tahoma").
     // Or if you want to use a custom font, make sure that font is present in the wwwroot/fonts folder and also use a good and complete font!
     //.UseCustomFont(Path.Combine(_env.WebRootPath, "fonts", "IRANSans(FaNum)_Bold.ttf")) // This is optional.
     .AbsoluteExpiration(minutes: 7)

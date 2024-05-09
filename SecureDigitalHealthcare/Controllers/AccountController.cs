@@ -28,6 +28,7 @@ namespace SecureDigitalHealthcare.Controllers
             _environment = environment;
         }
 
+
         #region Index
         public IActionResult Index()
         {
