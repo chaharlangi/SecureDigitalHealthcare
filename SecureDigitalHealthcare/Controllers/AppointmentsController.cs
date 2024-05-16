@@ -27,7 +27,7 @@ namespace SecureDigitalHealthcare.Controllers
             return View();
         }
 
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public IActionResult BookAppointment(int doctorId)
         {
 
@@ -45,7 +45,7 @@ namespace SecureDigitalHealthcare.Controllers
         }
 
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         [HttpPost]
         public async Task<IActionResult> BookAppointment(int doctorId, DateTime startTime, DateTime endTime, bool taken)
         {
@@ -78,10 +78,15 @@ namespace SecureDigitalHealthcare.Controllers
             var doctor = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).Include(x => x.Availabilities).FirstOrDefault(x => x.Id == availability.DoctorId);
             return RedirectToAction(nameof(BookAppointment), new { doctorId = doctorId });
         }
-
-        [Authorize(Roles = AppRole.Doctor)]
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         public async Task<IActionResult> GetDoctorAppointments()
         {
+            //foreach (var item in HttpContext.User.Identities)
+            //{
+            //    AppDebug.Log($"{item.NameClaimType}, {item.RoleClaimType}, {item.Name}");
+            //};
+            //return Content($"{HttpContext.User.Claims}");
+
             var appointments = await _context.Appointments
                                 .Include(x => x.Patient)
                                 .Include(x => x.Doctor)
@@ -94,7 +99,7 @@ namespace SecureDigitalHealthcare.Controllers
             return View(appointments);
         }
 
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public async Task<IActionResult> GetPatientAppointments()
         {
             var appointments = await _context.Appointments

@@ -6,7 +6,7 @@ using SecureDigitalHealthcare.Utilities;
 
 namespace SecureDigitalHealthcare.Controllers
 {
-    [Authorize(Roles = AppRole.Patient)]
+    [Authorize(Policy = PolicyConstants.MustBePatient)]
     public class PatientController : Controller
     {
         private readonly EasyHealthContext _context;

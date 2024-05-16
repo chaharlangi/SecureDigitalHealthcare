@@ -23,7 +23,7 @@ namespace SecureDigitalHealthcare.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public async Task<IActionResult> SubmitCommentToDoctor(int receiverId, int? replayToId, string textComment)
         {
             //return Json(MyHelper.GetErrorListFromModelStateString(ModelState));

@@ -20,14 +20,14 @@ namespace SecureDigitalHealthcare.Controllers
             _environment = environment;
         }
 
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public IActionResult GetAllDoctors()
         {
             var doctors = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).ToList();
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public IActionResult GetDoctorsByLastName(string lastName)
         {
             if (string.IsNullOrEmpty(lastName))
@@ -40,7 +40,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
-        [Authorize(Roles = AppRole.Patient)]
+        [Authorize(Policy = PolicyConstants.MustBePatient)]
         public IActionResult GetDoctorsBySpeciality(string speciality)
         {
             if (string.IsNullOrEmpty(speciality))
@@ -53,7 +53,7 @@ namespace SecureDigitalHealthcare.Controllers
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
 
-        [Authorize(Roles = AppRole.Doctor)]
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         public IActionResult GetDoctorAvailabilites()
         {
             Doctor doctor = _context.Doctors.Include(d => d.Availabilities).FirstOrDefault(d => d.Id == AppAuthentication.GetCurrentUserId(User));
@@ -61,7 +61,7 @@ namespace SecureDigitalHealthcare.Controllers
             return View(doctor.Availabilities.Where(x => x.StartTime.Date >= DateTime.Now.Date));
         }
 
-        [Authorize(Roles = AppRole.Doctor)]
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         [HttpPost]
         public async Task<IActionResult> DeleteAvailibility(AvailabilityDTO deleteAvailabilityDTO)
         {
@@ -76,7 +76,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             return RedirectToAction(nameof(GetDoctorAvailabilites));
         }
-        [Authorize(Roles = AppRole.Doctor)]
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         [HttpPost]
         public async Task<IActionResult> AddAvailibility(AvailabilityDTO addAvailabilityDTO)
         {

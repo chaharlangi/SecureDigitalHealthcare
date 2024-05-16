@@ -13,7 +13,7 @@ using SecureDigitalHealthcare.Utilities;
 
 namespace SecureDigitalHealthcare.Controllers
 {
-    [Authorize(Roles = AppRole.Admin)]
+    [Authorize(Policy = PolicyConstants.MustBePatient)]
     public class AdminDoctorController : Controller
     {
         private readonly EasyHealthContext _context;

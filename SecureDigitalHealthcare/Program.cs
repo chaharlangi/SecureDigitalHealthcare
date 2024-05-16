@@ -6,6 +6,7 @@ using SecureDigitalHealthcare.Constants;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using System.Security.Claims;
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -81,15 +82,15 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(PolicyConstants.MustBeAdmin, policy =>
     {
-        policy.RequireClaim(ClaimConstants.AdminId);
+        policy.RequireRole(AppRole.Admin);
     });
     options.AddPolicy(PolicyConstants.MustBeDoctor, policy =>
     {
-        policy.RequireClaim(ClaimConstants.DoctorId);
+        policy.RequireRole(AppRole.Doctor);
     });
     options.AddPolicy(PolicyConstants.MustBePatient, policy =>
     {
-        policy.RequireClaim(ClaimConstants.PatientId);
+        policy.RequireRole(AppRole.Patient);
     });
     options.AddPolicy(PolicyConstants.MustBeDoctorOrPatient, policy =>
     {
@@ -99,6 +100,7 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
     .Build();
+
 });
 
 //builder.Services.AddAuthentication(options =>
