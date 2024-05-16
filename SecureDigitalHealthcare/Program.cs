@@ -2,47 +2,24 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using SecureDigitalHealthcare.Constants;
-using SecureDigitalHealthcare.Models;
-using System.Text;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-
-string question = "Rm9yIHRoaXMgYXNzaWdubWVudCB5b3Ugd2lsbCBoYXZlIHR3byB0YXNrcyBvbiB0aGUgYmFja2VuZDoKLSB1cGxvYWQgYSBmaWxlIHJlY2VpdmVkIHRocm91Z2ggYSBQT1NUIHJlcXVlc3QgYW5kIHN0b3JlIGl0IGxvY2FsbHkgZW5jcnlwdGVkIHdpdGggQUVTMjU2Ci0gaGFzaCB0aGUgcGFzc3dvcmQgcmVjZWl2ZWQgYnkgUE9TVCBwYXJhbWV0ZXIgd2l0aCBiY3J5cHQgYW5kIHNhdmUgaXQgbG9jYWxseSBpbiBhIEpTT04gZmlsZQ==";
-//Console.WriteLine(ROT13Cipher.Decrypt(question));
-
-// Base64
-byte[] base64Decoded = BaseConverter.Base64Decode(question);
-Console.WriteLine("Base64 Decoded: " + Encoding.UTF8.GetString(base64Decoded));
-/*
- * For this assignment you will have two tasks on the backend:
-- upload a file received through a POST request and store it locally encrypted with AES256
-- hash the password received by POST parameter with bcrypt and save it locally in a JSON file
- */
-///
-
-
-
-
-
-
-
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddScoped(typeof(AppController<>));
 
 if (builder.Environment.IsDevelopment())
 {
-    //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-    //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextDevelopment")
-    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextDevelopment' not found.")));
 
-
+    //builder.Services.AddDbContext<EasyHealthContext>(options =>
+    //    options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthProduction")
+    //        ?? throw new InvalidOperationException("Connection string 'EasyHealthProduction' not found.")));
     builder.Services.AddDbContext<EasyHealthContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthDevelopment")
             ?? throw new InvalidOperationException("Connection string 'EasyHealthDevelopment' not found.")));
@@ -50,13 +27,13 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    //builder.Services.AddDbContext<SecureDigitalHealthcareContext>(options =>
-    //    options.UseSqlServer(builder.Configuration.GetConnectionString("SecureDigitalHealthcareContextProduction")
-    //        ?? throw new InvalidOperationException("Connection string 'SecureDigitalHealthcareContextProduction' not found.")));
+    builder.Services.AddDbContext<EasyHealthContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthProduction")
+            ?? throw new InvalidOperationException("Connection string 'EasyHealthProduction' not found.")));
 }
 
 
-// Add services to the container.
+// Add services To the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAntiforgery(options =>
@@ -75,11 +52,11 @@ builder.Services.AddDNTCaptcha(options =>
                                                           // .UseDistributedCacheStorageProvider() // --> It'question ideal for scalability using `services.AddStackExchangeRedisCache()` for instance.
                                                           // .UseDistributedSerializationProvider()
 
-    // Don't set this line (remove it) to use the installed system'question fonts (FontName = "Tahoma").
-    // Or if you want to use a custom font, make sure that font is present in the wwwroot/fonts folder and also use a good and complete font!
+    // Don't set this line (remove it) To use the installed system'question fonts (FontName = "Tahoma").
+    // Or if you want To use a custom font, make sure that font is present in the wwwroot/fonts folder and also use a good and complete font!
     //.UseCustomFont(Path.Combine(_env.WebRootPath, "fonts", "IRANSans(FaNum)_Bold.ttf")) // This is optional.
     .AbsoluteExpiration(minutes: 7)
-    .RateLimiterPermitLimit(10) // for .NET 7x+, Also you need to call app.UseRateLimiter() after calling app.UseRouting().
+    .RateLimiterPermitLimit(10) // for .NET 7x+, Also you need To call app.UseRateLimiter() after calling app.UseRouting().
     .ShowThousandsSeparators(false)
     .WithNoise(0.015f, 0.015f, 1, 0.0f)
     .WithEncryptionKey("This is my secure key!")
@@ -117,6 +94,34 @@ builder.Services.AddAuthorization(options =>
     .Build();
 });
 
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Use JWT for unauthorized requests
+//})
+//.AddCookie(options =>
+// {
+//     options.Cookie.Name = "TokenLoginCookie";
+//     options.LoginPath = "/Account/Login";
+//     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+//     options.AccessDeniedPath = "/Account/AccessDenied";
+// })
+//.AddJwtBearer(options =>
+//{
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidateLifetime = true,
+//        ValidIssuer = builder.Configuration.GetValue<string>("Authentication:Issuer"),
+//        ValidAudience = builder.Configuration.GetValue<string>("Authentication:Audience"),
+//        IssuerSigningKey = new SymmetricSecurityKey(
+//                                       Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("Authentication:SecretKey")!))
+//    };
+//});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
     AddCookie(options =>
     {
@@ -126,21 +131,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 
-//builder.Services.AddAuthentication("Bearer")
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidateAudience = true,
-//            ValidateIssuerSigningKey = true,
-//            //ValidateLifetime = true,
-//            ValidIssuer = builder.Configuration.GetValue<string>("Authentication:Issuer"),
-//            ValidAudience = builder.Configuration.GetValue<string>("Authentication:Audience"),
-//            IssuerSigningKey = new SymmetricSecurityKey(
-//                               Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("Authentication:SecretKey")!))
-//        };
-//    });
 
 var app = builder.Build();
 
@@ -154,7 +144,7 @@ app.Use((context, next) =>
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // The default HSTS value is 30 days. You may want To change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

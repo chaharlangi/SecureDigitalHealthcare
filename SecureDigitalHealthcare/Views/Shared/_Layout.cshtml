@@ -1,4 +1,21 @@
 ﻿@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.Controllers
+@inject SecureDigitalHealthcare.Utilities.AppController<AccountController> accountController
+@inject SecureDigitalHealthcare.Utilities.AppController<AdminDoctorController> adminDoctorController
+
+@functions {
+    private string GetLogoutUrl()
+    {
+        return accountController.CallAction(c => c.Logout());
+    }
+    private string GetHrefAdminDoctorIndex()
+    {
+        return adminDoctorController.CallAction(c => c.Index());
+    }
+
+}
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +46,10 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Dashboard</a>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-success" href="https://github.com/chaharlangi/SecureDigitalHealthcare" target="_blank">Github Repository</a>
+                        </li>
+
                     </ul>
                     <ul class="navbar-nav   me-5">
                         @if (User.Identity.IsAuthenticated)
@@ -38,6 +59,10 @@
                             if (AppAuthentication.IsDoctor(Context))
                             {
                                 welcomeMessage = $"Hi Doctor {User.Identity.Name}";
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary" asp-controller="Account" asp-action="EditProfile" target="_self">Edit Profile</a>
+                                </li>
                             }
                             else if (AppAuthentication.IsPatient(Context))
                             {
@@ -50,12 +75,15 @@
                                     <a class="nav-link text-success" asp-controller="Patient" asp-action="RetrieveAppointments" target="_self">Upcoming Appointments</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary" asp-controller="Patient" asp-action="EditProfile" target="_self">Edit Profile</a>
+                                    <a class="nav-link text-primary" asp-controller="Account" asp-action="EditProfile" target="_self">Edit Profile</a>
                                 </li>
                             }
                             else
                             {
-                                welcomeMessage = $"ADMIN";
+                                <li class="nav-item">
+                                    <a class="nav-link text-success" href="@GetHrefAdminDoctorIndex()" target="_self">Doctors</a>
+                                </li>
+                                welcomeMessage = $"ADMIN PANEL";
                             }
 
                             <li class="nav-item">
@@ -63,7 +91,11 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-danger" asp-controller="Account" asp-action="LogOut" target="_self">Logout</a>
+                                @{
+
+                                    var hrefLogout = accountController.CallAction(c => c.Logout());
+                                }
+                                <a class="nav-link text-danger" href="@hrefLogout" target="_self">Logout</a>
                             </li>
                         }
                         else

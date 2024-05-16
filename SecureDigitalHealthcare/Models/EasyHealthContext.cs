@@ -23,6 +23,8 @@ public partial class EasyHealthContext : DbContext
 
     public virtual DbSet<Doctor> Doctors { get; set; }
 
+    public virtual DbSet<ForgetPasswordToken> ForgetPasswordTokens { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Speciality> Specialities { get; set; }
@@ -106,6 +108,19 @@ public partial class EasyHealthContext : DbContext
                 .HasForeignKey(d => d.SpecialityId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_Doctor_Speciality");
+        });
+
+        modelBuilder.Entity<ForgetPasswordToken>(entity =>
+        {
+            entity.ToTable("ForgetPasswordToken");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
+            entity.Property(e => e.Token).HasMaxLength(128);
+
+            entity.HasOne(d => d.IdNavigation).WithOne(p => p.ForgetPasswordToken)
+                .HasForeignKey<ForgetPasswordToken>(d => d.Id)
+                .HasConstraintName("FK_ForgetPasswordToken_User");
         });
 
         modelBuilder.Entity<Role>(entity =>

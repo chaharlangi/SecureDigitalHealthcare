@@ -1,8 +1,30 @@
-﻿@model SecureDigitalHealthcare.DTOs.DoctorAppointmentDTO
+﻿@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.Controllers
+@using System.Reflection
 
+@model SecureDigitalHealthcare.DTOs.DoctorAppointmentDTO
+
+@inject AppController<FilesController> fileController
+@inject AppController<AppointmentsController> appointmentController
+@inject AppController<CommentsController> commentController
 
 @{
     ViewData["Title"] = "BookAppointment";
+}
+@functions {
+
+    public string GetSrcDoctorProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(x => x.DownloadFile(profilePicturePath));
+    }
+    public string GetUrlActionBookAppointment(int doctorId, DateTime startTime, DateTime endTime, bool taken)
+    {
+        return appointmentController.CallAction(x => x.BookAppointment(doctorId, startTime, endTime, taken));
+    }
+    public string GetUrlActionSubmitComment(int receiverId, int? replyToId)
+    {
+        return commentController.CallAction(x => x.SubmitCommentToDoctor(receiverId, replyToId, null!));
+    }
 }
 
 <h1>Booking an Appointment</h1>
@@ -12,10 +34,7 @@
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    @{
-                        var profilePictureSrc = Url.Action("GetImage", "Account", new { imageName = Model.ProfilePicturePath });
-                    }
-                    <img src="@profilePictureSrc" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
+                    <img src="@GetSrcDoctorProfilePicture(Model.ProfilePicturePath)" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
                     <h5 class="card-title">@Model.DoctorName @Model.DoctorLastName</h5>
                     <p class="card-text">@Model.Speciality</p>
 
@@ -50,14 +69,9 @@
                                 <td>@availability.EndTime</td>
                                 <td>@duration°</td>
                                 <td>
-                                    <form method="post" action="@Url.Action("BookAppointment", "Appointments",
-                                    new
-                                    {
-                                        doctorId=availability.DoctorId,
-                                        startTime=availability.StartTime,
-                                        endTime=availability.EndTime,
-                                        taken=availability.Taken
-                                    })">
+                                    <form method="post" action="@GetUrlActionBookAppointment(availability.DoctorId,availability.StartTime,availability.EndTime,availability.Taken)">
+
+                                        @Html.AntiForgeryToken()
                                         <button type="submit" class="btn btn-primary">Book</button>
                                     </form>
                                 </td>
@@ -93,12 +107,9 @@
 
             <!-- Form to add a new comment -->
             <h4>Add a Comment</h4>
-            <form method="post" action="@Url.Action("SubmitCommentToDoctor", "Comments",
-                new
-                {
-                    receiverId = Model.DoctorId,
-                    replyToId = -1
-                })">
+            <form method="post" action="@GetUrlActionSubmitComment(Model.DoctorId,replyToId: null)">
+
+                @Html.AntiForgeryToken()
                 <div class="form-group mb-2 mt-3">
                     <textarea name="textComment" class="form-control" placeholder="Your Comment" rows="3"></textarea>
                 </div>

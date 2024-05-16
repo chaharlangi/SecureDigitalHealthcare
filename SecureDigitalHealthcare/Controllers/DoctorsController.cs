@@ -27,6 +27,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
+
         [Authorize(Roles = AppRole.Patient)]
         public IActionResult GetDoctorsByLastName(string lastName)
         {

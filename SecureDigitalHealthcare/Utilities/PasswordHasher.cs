@@ -24,7 +24,7 @@
             Array.Copy(salt, 0, hashBytes, 0, SaltSize);
             Array.Copy(hash, 0, hashBytes, SaltSize, HashSize);
 
-            // Convert to base64
+            // Convert To base64
             string base64Hash = Convert.ToBase64String(hashBytes);
 
             // Format hash with extra information

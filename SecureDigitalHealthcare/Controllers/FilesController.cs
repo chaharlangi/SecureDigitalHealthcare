@@ -14,9 +14,6 @@ namespace SecureDigitalHealthcare.Controllers
         private readonly EasyHealthContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        //32byte key
-        const string encryptionKey = "7RBOwUpx1cv7VR+Bi3tWyI+QkWwC5NN7";
-
         public FilesController(EasyHealthContext context, IWebHostEnvironment environment)
         {
             _context = context;
@@ -38,7 +35,7 @@ namespace SecureDigitalHealthcare.Controllers
                     file.CopyTo(memoryStream);
                     var fileBytes = memoryStream.ToArray();
 
-                    var encryptedBytes = AppAES.EncryptBytes(fileBytes, encryptionKey);
+                    var encryptedBytes = AppEncryptor.EncryptBytes(fileBytes);
 
                     var filePath = Path.Combine(MyHelper.ProfilePicturesFolderName, file.FileName);
                     System.IO.File.WriteAllBytes(filePath, encryptedBytes);
@@ -54,18 +51,20 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpGet]
         public IActionResult DownloadFile(string fileName)
         {
-            try
+            var imagePath = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName, fileName);
+
+            //var fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
+
+            if (System.IO.File.Exists(imagePath))
             {
-                var encryptedFilePath = Path.Combine(MyHelper.ProfilePicturesFolderName, fileName);
-                var encryptedBytes = System.IO.File.ReadAllBytes(encryptedFilePath);
+                var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+                var decryptedBytes = AppEncryptor.DecryptBytes(imageBytes);
 
-                var decryptedBytes = AppAES.DecryptBytes(encryptedBytes, encryptionKey);
-
-                return File(decryptedBytes, "application/octet-stream", fileName);
+                return File(decryptedBytes, $"application/octet-stream"); // Adjust content type based on your image type
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return NotFound();
             }
         }
         [HttpPost]
@@ -78,5 +77,73 @@ namespace SecureDigitalHealthcare.Controllers
             System.IO.File.WriteAllText(passJsonPath, hashedPassJson);
             return Ok(hashedPassJson);
         }
+
+
+
+        public static IFormFile GetFileLocally(IWebHostEnvironment _environment, string fileName)
+        {
+            var filePath = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName, fileName);
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+            return new FormFile(new MemoryStream(fileBytes), 0, fileBytes.Length, fileName, fileName);
+        }
+        public static bool StoreProfileImage(IWebHostEnvironment _environment, IFormFile profilePictureInput, out string fileName)
+        {
+            fileName = string.Empty;
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var fileExtension = Path.GetExtension(profilePictureInput.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return false;
+            }
+
+            // Generate a unique filename
+            fileName = Guid.NewGuid().ToString() + fileExtension;
+            // Store files outside public folders
+            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
+            var filePath = Path.Combine(folder, fileName);
+
+
+            while (System.IO.File.Exists(filePath))
+            {
+                // If the file already exists, generate a new filename
+                fileName = Guid.NewGuid().ToString() + fileExtension;
+                filePath = Path.Combine(folder, fileName);
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                profilePictureInput.CopyTo(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+                var encryptedBytes = AppEncryptor.EncryptBytes(fileBytes);
+                System.IO.File.WriteAllBytes(filePath, encryptedBytes);
+            }
+
+            //using (var fileStream = new FileStream(filePath, FileMode.Create))
+            //{
+            //    profilePictureInput.CopyTo(fileStream);
+            //}
+
+            return true;
+        }
+        public static bool DeleteProfileImage(IWebHostEnvironment _environment, string fileName)
+        {
+            // Store files outside public folders
+            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
+            var filePath = Path.Combine(folder, fileName);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                return true;
+            }
+
+
+            return false;
+        }
+
     }
 }

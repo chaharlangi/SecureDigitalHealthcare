@@ -7,54 +7,6 @@ namespace SecureDigitalHealthcare.Utilities
     public class FileManager
     {
 
-        public static bool SaveProfileImage(IWebHostEnvironment _environment, IFormFile profilePictureInput, out string fileName)
-        {
-            fileName = string.Empty;
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            var fileExtension = Path.GetExtension(profilePictureInput.FileName).ToLowerInvariant();
-
-            if (!allowedExtensions.Contains(fileExtension))
-            {
-                return false;
-            }
-
-            // Generate a unique filename
-            fileName = Guid.NewGuid().ToString() + fileExtension;
-            // Store files outside public folders
-            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
-            var filePath = Path.Combine(folder, fileName);
-
-
-            while (File.Exists(filePath))
-            {
-                // If the file already exists, generate a new filename
-                fileName = Guid.NewGuid().ToString() + fileExtension;
-                filePath = Path.Combine(folder, fileName);
-            }
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                profilePictureInput.CopyTo(fileStream);
-            }
-
-            return true;
-        }
-        public static bool DeleteProfileImage(IWebHostEnvironment _environment, string fileName)
-        {
-            // Store files outside public folders
-            var folder = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName);
-            var filePath = Path.Combine(folder, fileName);
-
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-                return true;
-            }
-
-
-            return false;
-        }
         public static void EncryptFile(string filePath, byte[] key)
         {
             string tempFileName = Path.GetTempFileName();
@@ -67,7 +19,7 @@ namespace SecureDigitalHealthcare.Utilities
                 // aes.IV will be automatically populated with a secure random value
                 byte[] iv = cipher.IV;
 
-                // Write a marker header so we can identify how to read this file in the future
+                // Write a marker header so we can identify how To read this file in the future
                 tempFile.WriteByte(69);
                 tempFile.WriteByte(74);
                 tempFile.WriteByte(66);
@@ -87,7 +39,6 @@ namespace SecureDigitalHealthcare.Utilities
             File.Delete(filePath);
             File.Move(tempFileName, filePath);
         }
-
         public static void DecryptFile(string filePath, byte[] key)
         {
             string tempFileName = Path.GetTempFileName();

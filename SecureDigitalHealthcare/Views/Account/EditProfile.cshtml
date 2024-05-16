@@ -1,0 +1,162 @@
+﻿@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.DTOs
+
+@model EditProfileDTO
+@inject AppController<FilesController> fileController
+@inject AppController<AccountController> accountController
+@{
+    ViewData["Title"] = "EditProfile";
+}
+
+@functions {
+    public string GetUrlActionEditProfile()
+    {
+        return accountController.GetActionUrl(nameof(AccountController.EditProfile));
+        // return accountController.CallAction(c => c.EditProfile());
+    }
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
+    public string GetUrlPageChangePassword()
+    {
+        // return accountController.GetActionUrl(nameof(AccountController.ChangePassword));
+        return accountController.CallAction(c => c.ChangePassword(null));
+    }
+}
+
+<h1>EditProfile</h1>
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form action="@GetUrlActionEditProfile()" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group ">
+                @{
+                    string profilePictureName = "Default.jpg";
+                    if (string.IsNullOrEmpty(Model.ProfileImagePath) == false)
+                    {
+                        profilePictureName = Model.ProfileImagePath;
+                    }
+                }
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@GetSrcProfilePicture(profilePictureName)"
+                     alt="No image"
+                     width="150"
+                     height="150" />
+                <br />
+                <label asp-for="ProfileImagePath" class="control-label">Profile Picture</label>
+                <input type="file" name="profilePictureInput" id="profilePictureInput" class="form-control" accept="image/png, image/jpeg, image/jpg" />
+                @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
+            </div>
+
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+            <label asp-for="ProfileImagePath" class="control-label"></label>
+            <input asp-for="ProfileImagePath" class="form-control" />
+            <span asp-validation-for="ProfileImagePath" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" class="form-control" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+            <label asp-for="RegistrationDate" class="control-label"></label>
+            <input asp-for="RegistrationDate" class="form-control" />
+            <span asp-validation-for="RegistrationDate" class="text-danger"></span>
+            </div> *@
+            @* <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+            </div> *@
+            @* <div class="form-group">
+            <label asp-for="Password" class="control-label"></label>
+            <input asp-for="Password" class="form-control" value="" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+            </div> *@
+            @*  <div class="form-group">
+            <label asp-for="RoleId" class="control-label"></label>
+            <select asp-for="RoleId" class="form-control" asp-items="ViewBag.RoleId"></select>
+            <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div> *@
+            @* <div class="form-group form-check">
+            <label class="form-check-label">
+            <input class="form-check-input" asp-for="AgreedTerms" /> @Html.DisplayNameFor(model => model.AgreedTerms)
+            </label>
+            </div> *@
+
+            <div class="form-group">
+                <input class="form-control" style="display:none" name="Honeypot" />
+            </div>
+
+            @* <div class="form-group">
+            <label asp-for="Gender" class="control-label"></label>
+            <select asp-for="Gender" class="form-control">
+            <option value="true" selected>Male</option>
+            <option value="false">Female</option>
+            </select>
+            <span asp-validation-for="Gender" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary mt-2" />
+            </div>
+
+            <a class="btn btn-warning mt-3" href="@GetUrlPageChangePassword()">Change Password</a>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        document.getElementById('profilePictureInput').addEventListener('change', function (event) {
+            // Check if any file is selected
+            if (event.target.files.length > 0) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var imageUrl = e.target.result;
+                    document.getElementById('profilePictureImg').src = imageUrl;
+                };
+
+                reader.readAsDataURL(file);
+            }
+            else {
+
+                // Handle case when no file is selected
+                // For example, clear the existing image
+                var profilePictureUrl = '@GetSrcProfilePicture("Default.jpg")'; // Assuming ProfilePictureUrl is a property in your model
+                document.getElementById('profilePictureImg').src = profilePictureUrl; // Clear the image
+            }
+        });
+    </script>
+}

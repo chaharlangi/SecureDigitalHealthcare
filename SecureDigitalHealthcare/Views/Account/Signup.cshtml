@@ -2,9 +2,25 @@
 @using SecureDigitalHealthcare.Controllers
 @using SecureDigitalHealthcare.Utilities
 @model SecureDigitalHealthcare.Models.User
+@inject AppController<FilesController> fileController
+@inject AppController<AccountController> accountController
 
 @{
     ViewData["Title"] = "Sign up";
+}
+
+@{
+    string defaultImageValue = @GetSrcProfilePicture("Default.jpg");
+}
+@functions {
+    public string GetUrlActionSignup()
+    {
+        return accountController.CallAction(c => c.Signup());
+    }
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
 }
 
 <h1>Sign up</h1>
@@ -13,28 +29,12 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Signup" enctype="multipart/form-data">
+        <form action="@GetUrlActionSignup()" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group ">
-                @{
-
-                    // // // Generate the URL using a lambda expression
-                    // var urlHelper = new UrlHelper(httpContext.Current.Request.RequestContext);
-                    // var imageUrl = urlHelper.Action<ImageController>(c => c.GetImage("Default.jpg"));
-                }
-
-                @{
-
-                    var pictureSrc = @Url.Action("GetImage", "Image", new { imageName = "Default.jpg" });
-                }
-                @{
-                    // var pircutreSrc = Url.MyAction((AccountController c) => c.GetImage("Default.jpg"), null);
-                }
-                @{
-                    // var pictureSrc = UrlHelper.Action(c => c.GetImage("Default.jpg"));
-                }
-                <img class="rounded-circle m-3" id="profilePictureImg" src="@pictureSrc"
+            <div class="form-group mt-2">
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@GetSrcProfilePicture("Default.jpg")"
                      alt="No image"
                      width="150"
                      height="150" />
@@ -44,42 +44,42 @@
                 @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
             </div>
 
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"> Name</label>
+            <div class="form-group mt-2">
+                <label asp-for="Name" class="control-label">Name</label>
                 <input asp-for="Name" class="form-control" required />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
+            <div class="form-group mt-2">
+                <label asp-for="LastName" class="control-label">Last Name</label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
+            <div class="form-group mt-2">
+                <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
                 <input asp-for="PhoneNumber" type="number" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="BirthDate" class="control-label"></label>
+            <div class="form-group mt-2">
+                <label asp-for="BirthDate" class="control-label">Birthdate</label>
                 <input asp-for="BirthDate" type="date" class="form-control" />
                 <span asp-validation-for="BirthDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" type="email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="Password" class="control-label"></label>
                 <input asp-for="Password" type="password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="Gender" class="control-label"></label>
                 <select asp-for="Gender" class="form-control">
                     <option value="true" selected>Male</option>
@@ -88,7 +88,7 @@
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <div class="form-check">
                     <input asp-for="AgreedTerms" class="form-check-input" checked required />
                     <label asp-for="AgreedTerms" class="form-check-label control-label">
@@ -104,7 +104,7 @@
                 <input class="form-control" style="display:none" name="Honeypot" />
             </div>
 
-            <div class="form-group">
+            <div class="form-group mt-2">
 
                 <dnt-captcha asp-captcha-generator-max="30"
                              asp-captcha-generator-min="1"
@@ -126,7 +126,7 @@
                              asp-dir="ltr" />
 
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
@@ -141,15 +141,24 @@
 @section Scripts {
     <script>
         document.getElementById('profilePictureInput').addEventListener('change', function (event) {
-            var file = event.target.files[0];
-            var reader = new FileReader();
+            // Check if any file is selected
+            if (event.target.files.length > 0) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
 
-            reader.onload = function (e) {
-                var imageUrl = e.target.result;
-                document.getElementById('profilePictureImg').src = imageUrl;
-            };
+                reader.onload = function (e) {
+                    var imageUrl = e.target.result;
+                    document.getElementById('profilePictureImg').src = imageUrl;
+                };
 
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            }
+            else {
+                // Handle case when no file is selected
+                // For example, clear the existing image
+                var profilePictureUrl = '@GetSrcProfilePicture("Default.jpg")'; // Assuming ProfilePictureUrl is a property in your model
+                document.getElementById('profilePictureImg').src = profilePictureUrl; // Clear the image
+            }
         });
     </script>
 }

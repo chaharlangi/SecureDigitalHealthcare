@@ -1,15 +1,29 @@
-﻿@model SecureDigitalHealthcare.DTOs.LoginDTO
-
+﻿@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@model SecureDigitalHealthcare.DTOs.LoginDTO
+@inject AppController<AccountController> accountController
 
 @{
     ViewData["Title"] = "Login";
+}
+
+@functions {
+    public string GetUrlActionLogin()
+    {
+        return accountController.CallAction(x => x.Login());
+    }
+    public string GetHrefActionForgetPassword()
+    {
+        return accountController.CallAction(x => x.ForgetPassword());
+    }
 }
 
 <h1>Login</h1>
 
 <div>
     <div class="card-body">
-        <form asp-action="Login" method="post">
+        <form action="@GetUrlActionLogin()" method="post">
+            @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input asp-for="Email" type="text" class="form-control" required>
@@ -27,7 +41,10 @@
                     <a asp-controller="Account" asp-action="SignUp" class="link-success"> You are new to our website? Create an account now!</a>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="mb-3">
+                <a href="@GetHrefActionForgetPassword()" class="link-danger">Forget Password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Login</button>
         </form>
 
 

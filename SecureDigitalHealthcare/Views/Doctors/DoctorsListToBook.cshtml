@@ -1,6 +1,33 @@
-﻿@model IEnumerable<SecureDigitalHealthcare.DTOs.DoctorDTO>
+﻿@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.Controllers
+@using System.Reflection
+@model IEnumerable<SecureDigitalHealthcare.DTOs.DoctorDTO>
+
+@inject AppController<FilesController> fileController
+@inject AppController<AppointmentsController> appointmentController
+@inject AppController<DoctorsController> doctorsController
+
 @{
     ViewData["Title"] = "Booking Appointment";
+}
+
+@functions {
+    public string GetUrlActionSearchDoctorsByLastName()
+    {
+        return doctorsController.GetActionUrl(nameof(DoctorsController.GetDoctorsByLastName));
+    }
+    public string GetUrlActionSearchDoctorsBySpeciality()
+    {
+        return doctorsController.GetActionUrl(nameof(DoctorsController.GetDoctorsBySpeciality));
+    }
+    public string GetSrcDoctorProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(x => x.DownloadFile(profilePicturePath));
+    }
+    public string GetHrefDoctorAppointmentUrl(int doctorId)
+    {
+        return appointmentController.CallAction(x => x.BookAppointment(doctorId));
+    }
 }
 
 <h1>Select your doctor</h1>
@@ -12,13 +39,14 @@
         <div class="col">
 
             <br />
-            <form method="get" action="@Url.Action("GetDoctorsByLastName", "Doctors")">
+
+            <form action="@GetUrlActionSearchDoctorsByLastName()" method="get">
                 <div class="input-group mb-3">
                     <input type="text" name="lastname" class="form-control" placeholder="Search by last name">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </form>
-            <form method="get" action="@Url.Action("GetDoctorsBySpeciality", "Doctors")">
+            <form action="@GetUrlActionSearchDoctorsBySpeciality()" method="get">
                 <div class="input-group mb-3">
                     <input type="text" name="speciality" class="form-control" placeholder="Search by speciality">
                     <button type="submit" class="btn btn-primary">Search</button>
@@ -33,17 +61,15 @@
     <div class="row">
         @foreach (var doctor in Model)
         {
-            var profilePictureSrc = Url.Action("GetImage", "Account", new { imageName = doctor.ProfilePicturePath });
-
             <div class="col-md-3 mb-4">
                 <div class="card">
-                    <img src="@profilePictureSrc" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
+                    <img src="@GetSrcDoctorProfilePicture(doctor.ProfilePicturePath)" class="rounded-circle m-3 align-self-center" alt="No image" width="170" height="170" alt="Doctor Profile Picture">
 
                     <div class="card-body">
                         <h5 class="card-title text-center">@doctor.Name @doctor.LastName</h5>
                         <p class="card-text text-center">@doctor.Speciality</p>
                         <div class="text-center">
-                            <a href="@Url.Action("BookAppointment", "Appointments", new { doctorId = doctor.Id })" class="btn btn-primary">Book Appointment</a>
+                            <a href="@GetHrefDoctorAppointmentUrl(doctor.Id)" class="btn btn-primary">Book Appointment</a>
                         </div>
                     </div>
                 </div>

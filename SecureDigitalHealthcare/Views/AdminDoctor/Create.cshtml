@@ -1,0 +1,132 @@
+﻿@using Microsoft.AspNetCore.Mvc.Routing
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@model SecureDigitalHealthcare.Models.Doctor
+@inject AppController<FilesController> fileController
+@inject AppController<AccountController> accountController
+@inject AppController<AdminDoctorController> adminDoctorController
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+@{
+    string defaultImageValue = @GetSrcProfilePicture("Default.jpg");
+}
+@functions {
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
+    public string GetUrlActionCreateDoctor()
+    {
+        return adminDoctorController.CallAction(c => c.Create());
+    }
+}
+<h1>Create</h1>
+
+<h4>Doctor</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <div>
+            <a asp-action="Index" class="link-primary">Back to List</a>
+        </div>
+        <form action="@GetUrlActionCreateDoctor()" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group mt-2">
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@GetSrcProfilePicture("Default.jpg")"
+                     alt="No image"
+                     width="150"
+                     height="150" />
+                <br />
+                <label asp-for="@Model.IdNavigation.ProfileImagePath" class="control-label">Profile Picture</label>
+                <input type="file" name="profilePictureInput" id="profilePictureInput" class="form-control" accept="image/png, image/jpeg, image/jpg" />
+                @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
+            </div>
+
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.Name" class="control-label">Name</label>
+                <input asp-for="@Model.IdNavigation.Name" class="form-control" required />
+                <span asp-validation-for="@Model.IdNavigation.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.LastName" class="control-label">Last Name</label>
+                <input asp-for="@Model.IdNavigation.LastName" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.PhoneNumber" class="control-label">Phone Number</label>
+                <input asp-for="@Model.IdNavigation.PhoneNumber" type="number" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.Address" class="control-label"></label>
+                <input asp-for="@Model.IdNavigation.Address" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.Address" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.BirthDate" class="control-label">Birthdate</label>
+                <input asp-for="@Model.IdNavigation.BirthDate" type="date" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.BirthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.Email" class="control-label"></label>
+                <input asp-for="@Model.IdNavigation.Email" type="email" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.Password" class="control-label"></label>
+                <input asp-for="@Model.IdNavigation.Password" type="password" class="form-control" />
+                <span asp-validation-for="@Model.IdNavigation.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="@Model.IdNavigation.Gender" class="control-label"></label>
+                <select asp-for="@Model.IdNavigation.Gender" class="form-control">
+                    <option value="true" selected>Male</option>
+                    <option value="false">Female</option>
+                </select>
+                <span asp-validation-for="@Model.IdNavigation.Gender" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <label asp-for="SpecialityId" class="control-label">Speciality</label>
+                <select asp-for="SpecialityId" class ="form-control" asp-items="ViewBag.SpecialityId"></select>
+            </div>
+            <div class="form-group mt-2">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        document.getElementById('profilePictureInput').addEventListener('change', function (event) {
+            // Check if any file is selected
+            if (event.target.files.length > 0) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var imageUrl = e.target.result;
+                    document.getElementById('profilePictureImg').src = imageUrl;
+                };
+
+                reader.readAsDataURL(file);
+            }
+            else {
+                // Handle case when no file is selected
+                // For example, clear the existing image
+                var profilePictureUrl = '@GetSrcProfilePicture("Default.jpg")'; // Assuming ProfilePictureUrl is a property in your model
+                document.getElementById('profilePictureImg').src = profilePictureUrl; // Clear the image
+            }
+        });
+    </script>
+}

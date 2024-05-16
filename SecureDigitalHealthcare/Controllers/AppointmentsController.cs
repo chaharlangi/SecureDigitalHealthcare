@@ -44,10 +44,19 @@ namespace SecureDigitalHealthcare.Controllers
             return View(doctorAppointmentDTO);
         }
 
-        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = AppRole.Patient)]
-        public async Task<IActionResult> BookAppointment(Availability availability)
+        [HttpPost]
+        public async Task<IActionResult> BookAppointment(int doctorId, DateTime startTime, DateTime endTime, bool taken)
         {
+            Availability availability = new Availability()
+            {
+                DoctorId = doctorId,
+                StartTime = startTime,
+                EndTime = endTime,
+                Taken = taken
+            };
+
             var selectedAvailablity = _context.Availabilities.FirstOrDefault(x => x.DoctorId == availability.DoctorId && x.StartTime == availability.StartTime && x.EndTime == availability.EndTime);
 
             selectedAvailablity!.Taken = true;
@@ -70,5 +79,6 @@ namespace SecureDigitalHealthcare.Controllers
             var doctor = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).Include(x => x.Availabilities).FirstOrDefault(x => x.Id == availability.DoctorId);
             return View(new DoctorAppointmentDTO(doctor!));
         }
+
     }
 }
