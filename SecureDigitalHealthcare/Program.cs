@@ -21,8 +21,11 @@ if (builder.Environment.IsDevelopment())
     //    options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthProduction")
     //        ?? throw new InvalidOperationException("Connection string 'EasyHealthProduction' not found.")));
     builder.Services.AddDbContext<EasyHealthContext>(options =>
+    {
         options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthDevelopment")
-            ?? throw new InvalidOperationException("Connection string 'EasyHealthDevelopment' not found.")));
+            ?? throw new InvalidOperationException("Connection string 'EasyHealthDevelopment' not found."));
+        options.EnableSensitiveDataLogging(true);
+    });
 
 }
 else
@@ -87,6 +90,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(PolicyConstants.MustBePatient, policy =>
     {
         policy.RequireClaim(ClaimConstants.PatientId);
+    });
+    options.AddPolicy(PolicyConstants.MustBeDoctorOrPatient, policy =>
+    {
+        policy.RequireRole(AppRole.Patient, AppRole.Doctor);
     });
 
     options.FallbackPolicy = new AuthorizationPolicyBuilder()

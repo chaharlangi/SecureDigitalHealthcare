@@ -84,7 +84,7 @@ namespace SecureDigitalHealthcare.Controllers
         {
             var filePath = Path.Combine(_environment.GetRootProjectPath(), MyHelper.ProfilePicturesFolderName, fileName);
 
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            byte[] fileBytes = AppEncryptor.DecryptBytes(System.IO.File.ReadAllBytes(filePath));
 
             return new FormFile(new MemoryStream(fileBytes), 0, fileBytes.Length, fileName, fileName);
         }

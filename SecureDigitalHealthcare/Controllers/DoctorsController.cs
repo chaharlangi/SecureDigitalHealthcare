@@ -27,7 +27,6 @@ namespace SecureDigitalHealthcare.Controllers
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
-
         [Authorize(Roles = AppRole.Patient)]
         public IActionResult GetDoctorsByLastName(string lastName)
         {
@@ -52,6 +51,72 @@ namespace SecureDigitalHealthcare.Controllers
             var doctors = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).Where(d => d.Speciality.Name.Contains(speciality)).ToList();
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
+        }
+
+        [Authorize(Roles = AppRole.Doctor)]
+        public IActionResult GetDoctorAvailabilites()
+        {
+            Doctor doctor = _context.Doctors.Include(d => d.Availabilities).FirstOrDefault(d => d.Id == AppAuthentication.GetCurrentUserId(User));
+
+            return View(doctor.Availabilities.Where(x => x.StartTime.Date >= DateTime.Now.Date));
+        }
+
+        [Authorize(Roles = AppRole.Doctor)]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAvailibility(AvailabilityDTO deleteAvailabilityDTO)
+        {
+            var availability = _context.Availabilities
+                .FirstOrDefault(x => x.DoctorId == deleteAvailabilityDTO.DoctorId && x.StartTime == deleteAvailabilityDTO.StartTime && x.EndTime == deleteAvailabilityDTO.EndTime);
+
+            if (availability != null)
+            {
+                _context.Remove(availability);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(GetDoctorAvailabilites));
+        }
+        [Authorize(Roles = AppRole.Doctor)]
+        [HttpPost]
+        public async Task<IActionResult> AddAvailibility(AvailabilityDTO addAvailabilityDTO)
+        {
+            var canAddAvailability = _context.Availabilities
+                .Any(x => x.DoctorId == addAvailabilityDTO.DoctorId &&
+                    (x.StartTime <= addAvailabilityDTO.StartTime && x.EndTime >= addAvailabilityDTO.StartTime)) == false;
+
+            //foreach (var item in _context.Availabilities)
+            //{
+            //    bool conflict = (item.StartTime <= addAvailabilityDTO.StartTime && item.EndTime >= addAvailabilityDTO.StartTime);
+            //    string result = "\n";
+            //    result += $"Proposed:\t{addAvailabilityDTO.StartTime}\n";
+            //    result += $"Start:\t{item.StartTime} < (={item.StartTime <= addAvailabilityDTO.StartTime}=)\n";
+            //    result += $"End:\t{item.EndTime} > (={item.EndTime >= addAvailabilityDTO.StartTime}=)\n";
+            //    result += $"Conflicts:\t{conflict}\n";
+            //    AppDebug.Log($"{result}");
+            //}
+            //return Content(canAddAvailability.ToString());
+            var doctor = await _context.Doctors.Include(d => d.Availabilities).FirstOrDefaultAsync(d => d.Id == addAvailabilityDTO.DoctorId);
+
+            if (canAddAvailability == true)
+            {
+                doctor.Availabilities.Add(new Availability
+                {
+                    DoctorId = addAvailabilityDTO.DoctorId,
+                    StartTime = addAvailabilityDTO.StartTime,
+                    EndTime = addAvailabilityDTO.EndTime,
+                    Taken = false
+                });
+                //_context.Availabilities.Add(newSlot);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                AppDebug.Log("Availability already exists");
+            }
+
+            ViewData[ViewDataConstants.ValidationMessage] = "This availability already exists";
+
+            return RedirectToAction(nameof(GetDoctorAvailabilites));
         }
 
         public static List<DoctorDTO> GetListsByDoctors(List<Doctor> doctors)

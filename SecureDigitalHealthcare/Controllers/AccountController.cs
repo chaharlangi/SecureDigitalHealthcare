@@ -11,6 +11,7 @@ using SecureDigitalHealthcare.Utilities.Communication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.IdentityModel.Logging;
+using System;
 
 namespace SecureDigitalHealthcare.Controllers
 {
@@ -103,7 +104,8 @@ namespace SecureDigitalHealthcare.Controllers
                 return View();
             }
 
-            await AddNewUser(_context, _environment, user, profilePictureInput);
+            user.ProfileImagePath = HandleNewProfilePicture(_environment, profilePictureInput);
+            await AddNewUser(_context, user);
 
             await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, AppRole.Patient, true);
 
@@ -112,10 +114,8 @@ namespace SecureDigitalHealthcare.Controllers
 
         }
 
-        public static async Task<User> AddNewUser(EasyHealthContext context, IWebHostEnvironment environment, User user, IFormFile profilePictureInput)
+        public static async Task<User> AddNewUser(EasyHealthContext context, User user)
         {
-            user.ProfileImagePath = HandleNewProfilePicture(environment, profilePictureInput);
-
             user.RoleId = AppRole.GetRoleId(AppRole.Patient);
             user.RegistrationDate = DateTime.Now;
             user.Password = AppHasher.HashPassword(user.Password!);
@@ -215,7 +215,7 @@ namespace SecureDigitalHealthcare.Controllers
         [ValidateAntiForgeryToken]
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> EditProfile(EditProfileDTO editProfileDTO, IFormFile profilePictureInput = null, string honeypot = "")
+        public async Task<IActionResult> EditProfile(EditProfileDTO editProfileDTO, IFormFile profilePictureInput = null)
         {
             User user = _context.Users.FirstOrDefault(x => x.Id == editProfileDTO.Id);
 
@@ -225,8 +225,12 @@ namespace SecureDigitalHealthcare.Controllers
             user.BirthDate = editProfileDTO.BirthDate;
             user.PhoneNumber = editProfileDTO.PhoneNumber;
 
-            HandlePreviousProfilePicture(_environment, user.ProfileImagePath);
-            string newProfilePictureName = HandleNewProfilePicture(_environment, profilePictureInput);
+            string newProfilePictureName = user.ProfileImagePath;
+            if (profilePictureInput != null)
+            {
+                HandlePreviousProfilePicture(_environment, user.ProfileImagePath);
+                newProfilePictureName = HandleNewProfilePicture(_environment, profilePictureInput);
+            }
 
             user.ProfileImagePath = newProfilePictureName;
             editProfileDTO.ProfileImagePath = newProfilePictureName;
@@ -388,7 +392,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             return fileName;
         }
-        private static void HandlePreviousProfilePicture(IWebHostEnvironment environment, string profilePictureName)
+        public static void HandlePreviousProfilePicture(IWebHostEnvironment environment, string profilePictureName)
         {
             if (string.IsNullOrEmpty(profilePictureName))
             {

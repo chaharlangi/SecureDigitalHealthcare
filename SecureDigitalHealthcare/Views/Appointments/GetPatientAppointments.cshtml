@@ -1,0 +1,94 @@
+﻿@model IEnumerable<SecureDigitalHealthcare.Models.Appointment>
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.DTOs
+@inject AppController<FilesController> fileController
+@inject AppController<AccountController> accountController
+
+@{
+    ViewData["Title"] = "Upcomming Appointments";
+}
+
+@functions {
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
+}
+
+<h2>Your Upcomming Appointments</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+            </th>
+            <th>
+                Doctor
+            </th>
+            <th>
+                Speciality
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Time
+            </th>
+            <th>
+                Duration
+            </th>
+            <th>
+            </th>
+            <th>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string date = item.Availability.StartTime.ToString("dd-MM-yyyy");
+            string time = item.Availability.StartTime.ToString("HH:mm");
+            string duration = (item.Availability.EndTime - item.Availability.StartTime).TotalMinutes.ToString() + "°";
+
+            <tr>
+                <td class="align-content-center">
+                    @{
+                        string profilePictureName = "Default.jpg";
+                        if (string.IsNullOrEmpty(item.Doctor.IdNavigation.ProfileImagePath) == false)
+                        {
+                            profilePictureName = item.Doctor.IdNavigation.ProfileImagePath;
+                        }
+                    }
+                    <img class="rounded-circle" id="profilePictureImg" src="@GetSrcProfilePicture(profilePictureName)"
+                         alt="No image"
+                         width="50"
+                         height="50" />
+
+                </td>
+                <td class="align-content-center">
+                    @Html.DisplayFor(modelItem => item.Doctor.IdNavigation.Name)  @Html.DisplayFor(modelItem => item.Doctor.IdNavigation.LastName)
+                </td>
+                <td class="align-content-center">
+                    @Html.DisplayFor(modelItem => item.Doctor.Speciality.Name)
+                </td>
+                <td class="align-content-center">
+                    @date
+                </td>
+                <td class="align-content-center">
+                    @time
+                </td>
+                <td class="align-content-center">
+                    @duration
+                </td>
+                <td class="align-content-center">
+                    <a href="#" class="btn btn-primary">Enter</a>
+                </td>
+                <td class="align-content-center">
+                    <a href="#" class="btn btn-danger">Cancel</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

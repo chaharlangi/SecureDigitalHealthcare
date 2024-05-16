@@ -27,7 +27,8 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
-    public int RoleId { get; set; }
+    [ValidateNever]
+    public int? RoleId { get; set; }
 
     public bool AgreedTerms { get; set; }
 
@@ -43,6 +44,5 @@ public partial class User
 
     public virtual ForgetPasswordToken? ForgetPasswordToken { get; set; }
 
-    [ValidateNever]
-    public virtual Role Role { get; set; } = null!;
+    public virtual Role? Role { get; set; }
 }

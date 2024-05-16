@@ -66,8 +66,7 @@ namespace SecureDigitalHealthcare.Controllers
             {
                 DoctorId = availability.DoctorId,
                 PatientId = int.Parse(User.FindFirst(ClaimTypes.Sid)!.Value),
-                Date = availability.StartTime.Date,
-                Duration = new TimeOnly(timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds),
+                AvailabilityId = selectedAvailablity.Id,
                 Accepted = false,
                 Done = false
             };
@@ -77,8 +76,36 @@ namespace SecureDigitalHealthcare.Controllers
             await _context.SaveChangesAsync();
 
             var doctor = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).Include(x => x.Availabilities).FirstOrDefault(x => x.Id == availability.DoctorId);
-            return View(new DoctorAppointmentDTO(doctor!));
+            return RedirectToAction(nameof(BookAppointment), new { doctorId = doctorId });
         }
 
+        [Authorize(Roles = AppRole.Doctor)]
+        public async Task<IActionResult> GetDoctorAppointments()
+        {
+            var appointments = await _context.Appointments
+                                .Include(x => x.Patient)
+                                .Include(x => x.Doctor)
+                                .Include(x => x.Doctor.IdNavigation)
+                                .Include(x => x.Doctor.Speciality)
+                                .Include(x => x.Availability)
+                                .Where(x => x.DoctorId == AppAuthentication.GetCurrentUserId(User))
+                                .ToListAsync();
+
+            return View(appointments);
+        }
+
+        [Authorize(Roles = AppRole.Patient)]
+        public async Task<IActionResult> GetPatientAppointments()
+        {
+            var appointments = await _context.Appointments
+                                .Include(x => x.Doctor)
+                                .Include(x => x.Doctor.IdNavigation)
+                                .Include(x => x.Doctor.Speciality)
+                                .Include(x => x.Availability)
+                                .Where(x => x.PatientId == AppAuthentication.GetCurrentUserId(User))
+                                .ToListAsync();
+
+            return View(appointments);
+        }
     }
 }

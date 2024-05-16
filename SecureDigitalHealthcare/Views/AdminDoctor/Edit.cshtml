@@ -1,25 +1,91 @@
-﻿@model SecureDigitalHealthcare.Models.Doctor
+﻿@model AdminEditDoctorDTO
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.DTOs
 
+@inject AppController<FilesController> fileController
+@inject AppController<AdminDoctorController> adminDoctorController
 @{
     ViewData["Title"] = "Edit";
 }
 
+@functions {
+    public string GetUrlActionEditDoctor()
+    {
+        return adminDoctorController.CallAction(x => x.Edit(null));
+    }
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
+}
 <h1>Edit</h1>
 
 <h4>Doctor</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form action="@GetUrlActionEditDoctor()" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group ">
+                @{
+                    string profilePictureName = "Default.jpg";
+                    if (string.IsNullOrEmpty(Model.ProfileImagePath) == false)
+                    {
+                        profilePictureName = Model.ProfileImagePath;
+                    }
+                }
+                <img class="rounded-circle m-3" id="profilePictureImg" src="@GetSrcProfilePicture(profilePictureName)"
+                     alt="No image"
+                     width="150"
+                     height="150" />
+                <br />
+                <label asp-for="ProfileImagePath" class="control-label">Profile Picture</label>
+                <input type="file" name="profilePictureInput" id="profilePictureInput" class="form-control" accept="image/png, image/jpeg, image/jpg" />
+                @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
+            </div>
+
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="SpecialityId" class="control-label"></label>
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SpecialityId" class="control-label">Spesciality</label>
                 <select asp-for="SpecialityId" class="form-control" asp-items="ViewBag.SpecialityId"></select>
                 <span asp-validation-for="SpecialityId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Birthdate" class="control-label"></label>
+                <input asp-for="Birthdate" class="form-control" />
+                <span asp-validation-for="Birthdate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input class="form-control" style="display:none" name="Honeypot" />
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary mt-2" />
             </div>
         </form>
     </div>
@@ -29,3 +95,30 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
+
+@section Scripts {
+    <script>
+        document.getElementById('profilePictureInput').addEventListener('change', function (event) {
+            // Check if any file is selected
+            if (event.target.files.length > 0) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var imageUrl = e.target.result;
+                    document.getElementById('profilePictureImg').src = imageUrl;
+                };
+
+                reader.readAsDataURL(file);
+            }
+            else {
+
+                // Handle case when no file is selected
+                // For example, clear the existing image
+                var profilePictureUrl = '@GetSrcProfilePicture("Default.jpg")'; // Assuming ProfilePictureUrl is a property in your model
+                document.getElementById('profilePictureImg').src = profilePictureUrl; // Clear the image
+            }
+        });
+    </script>
+}

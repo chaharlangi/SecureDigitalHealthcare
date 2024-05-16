@@ -1,26 +1,75 @@
 ﻿@model SecureDigitalHealthcare.Models.Doctor
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.DTOs
+@inject AppController<FilesController> fileController
 
 @{
     ViewData["Title"] = "Details";
 }
 
+@functions {
+    public string GetSrcProfilePicture(string profilePicturePath)
+    {
+        return fileController.CallAction(c => c.DownloadFile(profilePicturePath));
+    }
+}
 <h1>Details</h1>
 
 <div>
     <h4>Doctor</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdNavigation)
+        <dt class="col-sm-6">
+            @{
+                string profilePictureName = "Default.jpg";
+                if (string.IsNullOrEmpty(Model.IdNavigation.ProfileImagePath) == false)
+                {
+                    profilePictureName = Model.IdNavigation.ProfileImagePath;
+                }
+            }
+            <img class="rounded-circle" id="profilePictureImg" src="@GetSrcProfilePicture(profilePictureName)"
+                 alt="No image"
+                 width="90"
+                 height="90" />
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdNavigation.Id)
+        <dd class="col-sm-6">
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Speciality)
+        <dt class="col-sm-2">
+            Name
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Speciality.Id)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdNavigation.Name)
+        </dd>
+        <dt class="col-sm-2">
+            Last Name
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdNavigation.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            Phone Number
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdNavigation.PhoneNumber)
+        </dd>
+        <dt class="col-sm-2">
+            Address
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdNavigation.Address)
+        </dd>
+        <dt class="col-sm-2">
+            Birthdate
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdNavigation.BirthDate)
+        </dd>
+        <dt class="col-sm-2">
+            Speciality
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Speciality.Name)
         </dd>
     </dl>
 </div>

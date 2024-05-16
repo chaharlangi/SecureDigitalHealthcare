@@ -2,6 +2,7 @@
 @using SecureDigitalHealthcare.Controllers
 @inject SecureDigitalHealthcare.Utilities.AppController<AccountController> accountController
 @inject SecureDigitalHealthcare.Utilities.AppController<AdminDoctorController> adminDoctorController
+@inject SecureDigitalHealthcare.Utilities.AppController<AppointmentsController> appointmentsController
 
 @functions {
     private string GetLogoutUrl()
@@ -11,6 +12,14 @@
     private string GetHrefAdminDoctorIndex()
     {
         return adminDoctorController.CallAction(c => c.Index());
+    }
+    private string GetHrefPatientAppointments()
+    {
+        return appointmentsController.CallAction(c => c.GetPatientAppointments());
+    }
+    private string GetHrefDoctorAppointments()
+    {
+        return appointmentsController.CallAction(c => c.GetDoctorAppointments());
     }
 
 }
@@ -61,6 +70,12 @@
                                 welcomeMessage = $"Hi Doctor {User.Identity.Name}";
 
                                 <li class="nav-item">
+                                    <a class="nav-link text-success" asp-controller="Doctors" asp-action="GetDoctorAvailabilites" target="_self">Availabilities</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-success" href="@GetHrefDoctorAppointments()" target="_self">Upcoming Appointments</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link text-primary" asp-controller="Account" asp-action="EditProfile" target="_self">Edit Profile</a>
                                 </li>
                             }
@@ -72,7 +87,7 @@
                                     <a class="nav-link text-success" asp-controller="Doctors" asp-action="GetAllDoctors" target="_self">Book Appointment</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-success" asp-controller="Patient" asp-action="RetrieveAppointments" target="_self">Upcoming Appointments</a>
+                                    <a class="nav-link text-success" href="@GetHrefPatientAppointments()" target="_self">Upcoming Appointments</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-primary" asp-controller="Account" asp-action="EditProfile" target="_self">Edit Profile</a>

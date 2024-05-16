@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using SecureDigitalHealthcare.DTOs;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 
@@ -90,27 +91,63 @@ namespace SecureDigitalHealthcare.Controllers
                 return NotFound();
             }
 
-            var doctor = await _context.Doctors.FindAsync(id);
+            Doctor doctor = await _context.Doctors.Include(x => x.IdNavigation).Include(x => x.Speciality).FirstOrDefaultAsync(x => x.Id == id);
             if (doctor == null)
             {
                 return NotFound();
             }
             ViewData["Id"] = new SelectList(_context.Users, "Id", "Id", doctor.Id);
-            ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Id", doctor.SpecialityId);
-            return View(doctor);
+            ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Name", doctor.SpecialityId);
+
+            AdminEditDoctorDTO adminEditDoctorDTO = new AdminEditDoctorDTO
+            {
+                Id = doctor.Id,
+                Name = doctor.IdNavigation.Name,
+                LastName = doctor.IdNavigation.LastName,
+                SpecialityId = doctor.Speciality.Id,
+                PhoneNumber = doctor.IdNavigation.PhoneNumber,
+                Address = doctor.IdNavigation.Address,
+                ProfileImagePath = doctor.IdNavigation.ProfileImagePath,
+                Birthdate = doctor.IdNavigation.BirthDate
+            };
+            return View(adminEditDoctorDTO);
         }
 
         // POST: AdminDoctor/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        private const string BindEditProfile = "Id,SpecialityId";
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SpecialityId")] Doctor doctor)
+        public async Task<IActionResult> Edit(int id, /*[Bind(BindEditProfile)]*/ AdminEditDoctorDTO doctor, IFormFile profilePictureInput = null)
         {
             if (id != doctor.Id)
             {
                 return NotFound();
             }
+
+            var user = await _context.Doctors.Include(x => x.IdNavigation).Include(x => x.Speciality).FirstOrDefaultAsync(x => x.Id == id);
+
+            user.IdNavigation.Name = doctor.Name;
+            user.IdNavigation.LastName = doctor.LastName;
+            user.IdNavigation.PhoneNumber = doctor.PhoneNumber;
+            user.IdNavigation.Address = doctor.Address;
+            user.IdNavigation.BirthDate = doctor.Birthdate;
+            user.Speciality = await _context.Specialities.FirstOrDefaultAsync(x => x.Id == doctor.SpecialityId);
+            //
+
+            string newProfilePictureName = user.IdNavigation.ProfileImagePath;
+            if (profilePictureInput != null)
+            {
+                AccountController.HandlePreviousProfilePicture(_environment, user.IdNavigation.ProfileImagePath);
+                newProfilePictureName = AccountController.HandleNewProfilePicture(_environment, profilePictureInput);
+            }
+            user.IdNavigation.ProfileImagePath = newProfilePictureName;
+            doctor.ProfileImagePath = newProfilePictureName;
+            //
+            //return Content(MyHelper.GetErrorListFromModelStateString(ModelState));
+
+            await _context.SaveChangesAsync();
 
             if (ModelState.IsValid)
             {
@@ -133,8 +170,10 @@ namespace SecureDigitalHealthcare.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Id"] = new SelectList(_context.Users, "Id", "Id", doctor.Id);
-            ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Id", doctor.SpecialityId);
-            return View(doctor);
+            ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Name", doctor.SpecialityId);
+
+            return RedirectToAction(nameof(Details), new { id=id});
+            //return RedirectToAction(nameof(Edit),id);
         }
 
         // GET: AdminDoctor/Delete/5

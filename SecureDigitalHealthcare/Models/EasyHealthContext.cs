@@ -35,15 +35,20 @@ public partial class EasyHealthContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => new { e.PatientId, e.DoctorId, e.Date }).HasName("PK_Appointment_1");
+            entity.HasKey(e => new { e.PatientId, e.DoctorId });
 
             entity.ToTable("Appointment");
 
             entity.Property(e => e.PatientId).HasDefaultValue(-1);
             entity.Property(e => e.DoctorId).HasDefaultValue(-1);
-            entity.Property(e => e.Date).HasColumnType("datetime");
             entity.Property(e => e.Disease).HasColumnType("text");
+            entity.Property(e => e.DoctorDescription).HasColumnType("text");
             entity.Property(e => e.Symptom).HasColumnType("text");
+
+            entity.HasOne(d => d.Availability).WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.AvailabilityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Appointment_Availability");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.DoctorId)
@@ -58,16 +63,15 @@ public partial class EasyHealthContext : DbContext
 
         modelBuilder.Entity<Availability>(entity =>
         {
-            entity.HasKey(e => new { e.DoctorId, e.StartTime, e.EndTime });
+            entity.HasKey(e => e.Id).HasName("PK_Availability_1");
 
             entity.ToTable("Availability");
 
-            entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.Availabilities)
                 .HasForeignKey(d => d.DoctorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Availability_Doctor");
         });
 
@@ -97,11 +101,10 @@ public partial class EasyHealthContext : DbContext
         {
             entity.ToTable("Doctor");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValue(-1);
 
             entity.HasOne(d => d.IdNavigation).WithOne(p => p.Doctor)
                 .HasForeignKey<Doctor>(d => d.Id)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Doctor_User");
 
             entity.HasOne(d => d.Speciality).WithMany(p => p.Doctors)
@@ -151,10 +154,11 @@ public partial class EasyHealthContext : DbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.ProfileImagePath).HasMaxLength(50);
             entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
+            entity.Property(e => e.RoleId).HasDefaultValue(0);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_User_Role");
         });
 

@@ -1,0 +1,117 @@
+﻿@using SecureDigitalHealthcare.DTOs
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.Controllers
+@model IEnumerable<SecureDigitalHealthcare.Models.Availability>
+@inject AppController<DoctorsController> doctorsController
+
+@{
+    ViewData["Title"] = "Availabilites";
+}
+
+@functions {
+    private string GetUrlActionDeleteAvailability()
+    {
+        return doctorsController.CallAction(c => c.DeleteAvailibility(null));
+    }
+    private string GetUrlActionAddAvailability()
+    {
+        return doctorsController.CallAction(c => c.AddAvailibility(null));
+    }
+}
+
+<h1>Manage Your Availabilites</h1>
+@{
+    await Html.RenderPartialAsync($"_{ViewDataConstants.ValidationMessage}");
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Date
+            </th>
+            <th>
+                Form
+            </th>
+            <th>
+                To
+            </th>
+            <th>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var dates = Model.OrderBy(x => x.StartTime.Date).ThenBy(item => item.StartTime.TimeOfDay);
+        }
+        @foreach (var item in dates)
+        {
+            <tr>
+                <td>
+                    @item.StartTime.ToString("dd/MM/yyyy")
+                </td>
+                <td>
+                    @item.StartTime.ToString("HH:mm")
+                </td>
+                <td>
+                    @item.EndTime.ToString("HH:mm")
+                </td>
+                <td>
+                    @{
+                        string taken = "";
+                        if(item.Taken == true)
+                        {
+                            taken = "Booked";
+                        }
+                    }
+                    @taken
+                </td>
+                <td>
+                    @if (item.Taken == false)
+                    {
+                        <form action="@GetUrlActionDeleteAvailability()" method="post">
+
+                            <input type="hidden" name="@nameof(AvailabilityDTO.DoctorId)" value="@item.DoctorId" />
+                            <input type="hidden" name="@nameof(AvailabilityDTO.StartTime)" value="@item.StartTime" />
+                            <input type="hidden" name="@nameof(AvailabilityDTO.EndTime)" value="@item.EndTime" />
+
+                            <div class="form-group">
+                                <input type="submit" value="Delete" class="btn btn-danger" />
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <input type="submit" value="Delete" class="btn btn-outline-danger" disabled />
+                        </div>
+                    }
+                </td>
+            </tr>
+        }
+        <tr>
+            <form action="@GetUrlActionAddAvailability()" method="post">
+                <input type="hidden" name="@nameof(AvailabilityDTO.DoctorId)" value="@AppAuthentication.GetCurrentUserId(User)" />
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.StartTime)" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.EndTime)" value="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input type="submit" value="Add" class="btn btn-success" />
+                </div>
+            </td>
+            </form>
+        </tr>
+    </tbody>
+</table>
