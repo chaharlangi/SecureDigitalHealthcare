@@ -7,6 +7,30 @@ using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Security.Claims;
+using Azure.Communication;
+using Azure.Communication.Identity;
+using Azure.Communication.Rooms;
+using Microsoft.CodeAnalysis.Elfie.Model;
+using SecureDigitalHealthcare.Utilities.Communication;
+using Microsoft.Extensions.Hosting;
+
+
+RoomCall roomCall = new RoomCall();
+//var room = await roomCall.CreateRoomAsync(2, "10", "20");
+//var par = await roomCall.GetParticipantsAsync(room.Id);
+
+//string connectionString = "endpoint=https://easyhealthcommunicationservice.europe.communication.azure.com/;accesskey=i3cI3sXbr/agwxQs1lvJTq9zMpwHVRT7x1TaOM3EghKXj3hspvDj6hMzy59MI9ap7omCkQLws2cZlTFVY1tBjw==";
+
+//RoomsClient _roomsClient = new RoomsClient(connectionString);
+//CommunicationIdentityClient _identityClient = new CommunicationIdentityClient(connectionString);
+
+//CommunicationUserIdentifier user1 = new CommunicationUserIdentifier("1003");
+//CommunicationUserIdentifier user2 = _identityClient.CreateUser();
+//CommunicationUserIdentifier user3 = _identityClient.CreateUser();
+
+//AppDebug.Log($"User 1:\n{user1.Id}\n{user1.RawId}");
+//AppDebug.Log($"User 2:\n{user2.Id}\n{user2.RawId}");
+//AppDebug.Log($"User 3:\n{user3.Id}\n{user3.RawId}");
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -175,3 +199,60 @@ app.MapControllerRoute(
 
 app.Run();
 
+
+
+//while (true)
+//{
+//    Console.WriteLine("1. Create Room: ");
+//    Console.WriteLine("2. Delete Room: ");
+//    Console.WriteLine("3. Get Room: ");
+//    Console.WriteLine("4. Get Rooms: ");
+//    Console.WriteLine("5. Add Participants: ");
+//    Console.WriteLine("6. Get Participants: ");
+//    Console.WriteLine("7. Remove Participants: ");
+
+//    Console.Write("\nInput Operation: ");
+//    Console.WriteLine();
+
+//    var input = Console.ReadLine();
+//    if (input is null)
+//        input = "0";
+
+//    RoomCall roomCall = new RoomCall();
+//    int operation = int.Parse(input);
+
+//    switch (operation)
+//    {
+//        case 1:
+//            Console.WriteLine("input host id");
+//            var hostId = Console.ReadLine();
+//            Console.WriteLine("input guest id");
+//            var guestId = Console.ReadLine();
+//            Console.WriteLine("input remain valid minutes");
+//            var remainValidMinutes = int.Parse(Console.ReadLine());
+//            var room = roomCall.CreateRoomAsync(remainValidMinutes, hostId, guestId);
+
+//            Console.WriteLine("Input any to continue...");
+//            Console.ReadLine();
+//            break;
+//        case 2:
+
+//            break;
+//        case 3:
+
+//            break;
+//        case 4:
+
+//            var rooms = roomCall.GetRoomsAsync();
+
+//            Console.WriteLine("Input any to continue...");
+//            Console.ReadLine();
+//            break;
+//        case 5:
+//            Environment.Exit(0);
+//            break;
+//        default:
+//            Console.Clear();
+//            break;
+//    }
+//}

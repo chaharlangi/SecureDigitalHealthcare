@@ -4,15 +4,12 @@
     {
         public static void Log(object message)
         {
-            string finalMessage = $"AppDebug:   {message}";
+            string finalMessage = $"AppDebug:   ";
 
             var length = finalMessage.ToString().Length;
-            //for (int i = 0; i < length; i++)
-            //{
-            //    Console.Write($"-");
-            //}
+
             Console.WriteLine();
-            Console.WriteLine(finalMessage);
+            Console.WriteLine(message);
             for (int i = 0; i < length; i++)
             {
                 Console.Write($"-");
