@@ -13,24 +13,19 @@ using Azure.Communication.Rooms;
 using Microsoft.CodeAnalysis.Elfie.Model;
 using SecureDigitalHealthcare.Utilities.Communication;
 using Microsoft.Extensions.Hosting;
+using SecureDigitalHealthcare.Controllers;
 
 
-RoomCall roomCall = new RoomCall();
-//var room = await roomCall.CreateRoomAsync(2, "10", "20");
-//var par = await roomCall.GetParticipantsAsync(room.Id);
+//var room = await RoomCall.CreateRoomAsync();
+//AppDebug.Log(room.ToString());
 
-//string connectionString = "endpoint=https://easyhealthcommunicationservice.europe.communication.azure.com/;accesskey=i3cI3sXbr/agwxQs1lvJTq9zMpwHVRT7x1TaOM3EghKXj3hspvDj6hMzy59MI9ap7omCkQLws2cZlTFVY1tBjw==";
 
-//RoomsClient _roomsClient = new RoomsClient(connectionString);
-//CommunicationIdentityClient _identityClient = new CommunicationIdentityClient(connectionString);
-
-//CommunicationUserIdentifier user1 = new CommunicationUserIdentifier("1003");
-//CommunicationUserIdentifier user2 = _identityClient.CreateUser();
-//CommunicationUserIdentifier user3 = _identityClient.CreateUser();
-
-//AppDebug.Log($"User 1:\n{user1.Id}\n{user1.RawId}");
-//AppDebug.Log($"User 2:\n{user2.Id}\n{user2.RawId}");
-//AppDebug.Log($"User 3:\n{user3.Id}\n{user3.RawId}");
+//var rooms = await RoomCall.GetRoomsAsync();
+//foreach (var item in rooms)
+//{
+//    await RoomCall.DeleteRoom(item.Id);
+//}
+//await RoomCall.GetRoomsAsync();
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -38,13 +33,10 @@ RoomCall roomCall = new RoomCall();
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddScoped(typeof(AppController<>));
+//builder.Services.AddHttpClient<VideoCallController>();
 
 if (builder.Environment.IsDevelopment())
 {
-
-    //builder.Services.AddDbContext<EasyHealthContext>(options =>
-    //    options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthProduction")
-    //        ?? throw new InvalidOperationException("Connection string 'EasyHealthProduction' not found.")));
     builder.Services.AddDbContext<EasyHealthContext>(options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("EasyHealthDevelopment")
@@ -127,34 +119,6 @@ builder.Services.AddAuthorization(options =>
 
 });
 
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Use JWT for unauthorized requests
-//})
-//.AddCookie(options =>
-// {
-//     options.Cookie.Name = "TokenLoginCookie";
-//     options.LoginPath = "/Account/Login";
-//     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-//     options.AccessDeniedPath = "/Account/AccessDenied";
-// })
-//.AddJwtBearer(options =>
-//{
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateIssuerSigningKey = true,
-//        ValidateLifetime = true,
-//        ValidIssuer = builder.Configuration.GetValue<string>("Authentication:Issuer"),
-//        ValidAudience = builder.Configuration.GetValue<string>("Authentication:Audience"),
-//        IssuerSigningKey = new SymmetricSecurityKey(
-//                                       Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("Authentication:SecretKey")!))
-//    };
-//});
-
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
     AddCookie(options =>
     {
@@ -183,6 +147,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+//
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+//               Path.Combine(Directory.GetCurrentDirectory(), "MyRoomCallPlugin", "node_modules")),
+//    RequestPath = new PathString("/vendor")
+//});
+//
 
 app.UseRouting();
 

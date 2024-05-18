@@ -18,35 +18,61 @@ public static class RoomCall
 
     public record RoomData()
     {
-        public string? RoomId { get;  init; }
-        public string? HostId { get;  init; }
-        public string? GuestId { get;  init; }
+        public string? RoomId { get; init; }
+        public string? HostId { get; init; }
+        public string? GuestId { get; init; }
+        public string? HostAccessToken { get; init; }
+        public string? GuestAccessToken { get; init; }
         public DateTimeOffset? ValidFrom { get; init; }
         public DateTimeOffset? ValidUntil { get; init; }
         public int? DurationInMinutes { get; init; }
+
+        public override string ToString()
+        {
+            return $"RoomId: {RoomId}" +
+                   $"\nHostId: {HostId}" +
+                   $"\nGuestId: {GuestId}" +
+                   $"\nHostAccessToken: {HostAccessToken}" +
+                   $"\nGuestAccessToken: {GuestAccessToken}" +
+                   $"\nValidFrom: {ValidFrom}" +
+                   $"\nValidUntil: {ValidUntil}" +
+                   $"\nDurationInMinutes: {DurationInMinutes}";
+        }
     }
 
-    public static async Task<RoomData> CreateRoomAsync(int durationValidMinutes)
+    public static async Task<RoomData> CreateRoomAsync(int durationValidMinutes = 60)
     {
+        if (durationValidMinutes < 60)
+        {
+            durationValidMinutes = 60;
+        }
+
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        CommunicationUserIdentifier hostUser = _identityClient.CreateUser();
-        CommunicationUserIdentifier guestUser = _identityClient.CreateUser();
+        DateTimeOffset validFrom = DateTimeOffset.UtcNow;
+        DateTimeOffset validUntil = validFrom.AddMinutes(durationValidMinutes);
+        TimeSpan validitySpan = validUntil - validFrom;
+
+        Response<CommunicationUserIdentifierAndToken> hostIdentityAndTokenResponse = await _identityClient.CreateUserAndTokenAsync(scopes: new[] { CommunicationTokenScope.VoIP }, validitySpan);
+        Response<CommunicationUserIdentifierAndToken> guestIdentityAndTokenResponse = await _identityClient.CreateUserAndTokenAsync(scopes: new[] { CommunicationTokenScope.VoIP }, validitySpan);
+
+        CommunicationUserIdentifier hostUserIdentifier = hostIdentityAndTokenResponse.Value.User;
+        string hostTokenAccess = hostIdentityAndTokenResponse.Value.AccessToken.Token;
+        CommunicationUserIdentifier guestUserIdentifier = guestIdentityAndTokenResponse.Value.User;
+        string guestTokenAccess = guestIdentityAndTokenResponse.Value.AccessToken.Token;
+
 
         List<RoomParticipant> participants = new List<RoomParticipant>()
         {
-                new RoomParticipant(hostUser)
+                new RoomParticipant(hostUserIdentifier)
                 {
                     Role = ParticipantRole.Presenter
                 },
-                new RoomParticipant(guestUser)
+                new RoomParticipant(guestUserIdentifier)
                 {
                     Role = ParticipantRole.Attendee
                 }
         };
-
-        DateTimeOffset validFrom = DateTimeOffset.UtcNow;
-        DateTimeOffset validUntil = validFrom.AddMinutes(durationValidMinutes);
 
         bool pstnDialOutEnabled = false;
         CreateRoomOptions createRoomOptions = new CreateRoomOptions()
@@ -62,16 +88,18 @@ public static class RoomCall
         RoomData roomData = new RoomData()
         {
             RoomId = createdRoom.Id,
-            HostId = hostUser.RawId,
-            GuestId = guestUser.RawId,
+            HostId = hostUserIdentifier.RawId,
+            GuestId = guestUserIdentifier.RawId,
+            HostAccessToken = hostTokenAccess,
+            GuestAccessToken = guestTokenAccess,
             ValidFrom = validFrom,
             ValidUntil = validUntil,
             DurationInMinutes = durationValidMinutes
         };
 
         AppDebug.Log($"\nCreated room (id: {createdRoom.Id})" +
-                     $"\nhost       (id: {hostUser.RawId}" +
-                     $"\nguest      (id: {guestUser.RawId}" +
+                     $"\nhost       (id: {hostUserIdentifier.RawId}" +
+                     $"\nguest      (id: {guestUserIdentifier.RawId}" +
                      $"\nexpires at {validUntil.ToString("HH:mm:ss dd-MM-yyyy")}" +
                      $"\n\n");
 
