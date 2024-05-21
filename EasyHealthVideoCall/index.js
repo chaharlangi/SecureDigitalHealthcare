@@ -1,5 +1,3 @@
-
-
 // Make sure to install the necessary dependencies
 const { CallClient, VideoStreamRenderer, LocalVideoStream } = require('@azure/communication-calling');
 const { AzureCommunicationTokenCredential } = require('@azure/communication-common');
@@ -32,9 +30,7 @@ let localVideoContainer = document.getElementById('localVideoContainer');
 /**
  * Using the CallClient, initialize a CallAgent instance with a CommunicationUserCredential which enable us to join a rooms call. 
  */
-
 initializeCallAgentButton.onclick = async () => {
-
     try {
         const callClient = new CallClient();
         tokenCredential = new AzureCommunicationTokenCredential(userAccessToken.value.trim());
@@ -50,6 +46,7 @@ initializeCallAgentButton.onclick = async () => {
         console.error(error);
     }
 }
+
 
 startCallButton.onclick = async () => {
     try {
@@ -292,38 +289,66 @@ hangUpCallButton.addEventListener("click", async () => {
 
 
 //Siavash
-const eventSource = new EventSource('https://localhost:7121/videocall');
+var userAccessTokenValue = "";
+var userRoomIdValue = "";
 
-//document.addEventListener("DOMContentLoaded", function () {
+function ReadValuesFromClipbaordAndStart() {
+    // Use the Clipboard API
+    navigator.clipboard.readText().then(function (text) {
+        userAccessToken.value = text;
+        userAccessTokenValue = userAccessToken.value.trim();
+        GetRoomIdRequest();
+    }).catch(function (err) {
+        console.error('Could not paste text: ', err);
+    });
+}
+function GetRoomIdRequest() {
 
-//    eventSource.onmessage = function (event) {
-//        console.log('Data received from server:', event.data);
-//        const data = JSON.parse(event.data);
-//        initializeValues(data);
-//    };
+    const { MyAppEncryptor } = require('./appEncryptor');
 
-//    eventSource.onerror = function (error) {
-//        console.error('Error in EventSource:', error);
-//    };
-//});
-document.addEventListener("DOMContentLoaded", function () {
-    fetch('https://localhost:7121/videocall')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data received from server:', data);
-            initializeValues(data);
+    let encryptor = new MyAppEncryptor();
+
+    const axios = require('axios');
+    const url = 'https://localhost:7121/videocall';
+    const data =
+    {
+        encryptedUserAccessToken: encryptor.encryptString(userAccessTokenValue),
+        ivBase64: encryptor.getIvBase64()
+    };
+
+    const headers = {
+        'Content-Type': 'application/json', // Example header
+        // Add any other headers you need
+    };
+
+    axios.get(url, {
+        params: data,
+        headers: headers
+    })
+        .then(response => {
+
+            console.log('Response:', response.data);
+
+            userRoomIdValue = response.data.roomId
+
+            initializeValues(userRoomIdValue, userAccessTokenValue);
+
         })
         .catch(error => {
-            console.error('Error fetching data:', error);
+            console.error(`Problem with GET request: ${error.message}`);
         });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    ReadValuesFromClipbaordAndStart();
+    //GetRoomIdRequest()
 });
-async function initializeValues(data) {
+async function initializeValues(roomId, accessToken) {
 
-    console.log('Data received from server:', data);
 
-    document.getElementById('acs-room-id').setAttribute('value', data.roomid);
-    document.getElementById('user-access-token').setAttribute('value', data.accesstoken);
+    document.getElementById('acs-room-id').setAttribute('value', roomId);
+    document.getElementById('user-access-token').setAttribute('value', accessToken);
 
+    //return roomId;
     //await initializeCallAgentButton.click();
     //await startCallButton.click();
 

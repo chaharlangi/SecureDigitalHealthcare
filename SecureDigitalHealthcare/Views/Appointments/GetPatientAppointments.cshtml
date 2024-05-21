@@ -52,6 +52,7 @@
             string time = item.Availability.StartTime.ToString("HH:mm");
             string duration = (item.Availability.EndTime - item.Availability.StartTime).TotalMinutes.ToString() + "°";
 
+            <input type="hidden" id="textToCopy" value="@item.RoomCall.GuestAccessToken"></input>
             <tr>
                 <td class="align-content-center">
                     @{
@@ -83,7 +84,7 @@
                     @duration
                 </td>
                 <td class="align-content-center">
-                    <a href="#" class="btn btn-primary">Enter</a>
+                    <a onclick="copyText();" href="@ViewBag.VideoCallUrl" class="btn btn-primary" target="_blank">Enter</a>
                 </td>
                 <td class="align-content-center">
                     <a href="#" class="btn btn-danger">Cancel</a>
@@ -92,3 +93,4 @@
         }
     </tbody>
 </table>
+<script src="~/js/CopyAccessToken.js"></script>

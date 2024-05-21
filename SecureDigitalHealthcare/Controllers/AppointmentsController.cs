@@ -10,6 +10,8 @@ using SecureDigitalHealthcare.Utilities;
 using System;
 using System.Numerics;
 using System.Security.Claims;
+using SecureDigitalHealthcare.Utilities.Communication;
+using static SecureDigitalHealthcare.Utilities.Communication.RoomCallManager;
 
 namespace SecureDigitalHealthcare.Controllers
 {
@@ -61,6 +63,8 @@ namespace SecureDigitalHealthcare.Controllers
 
             selectedAvailablity!.Taken = true;
 
+            RoomCallData roomCall = await RoomCallManager.CreateRoomAsync();
+
             var timeSpan = availability.EndTime - availability.StartTime;
             var appontment = new Appointment()
             {
@@ -68,7 +72,15 @@ namespace SecureDigitalHealthcare.Controllers
                 PatientId = int.Parse(User.FindFirst(ClaimTypes.Sid)!.Value),
                 AvailabilityId = selectedAvailablity.Id,
                 Accepted = false,
-                Done = false
+                Done = false,
+                RoomCall = new RoomCall()
+                {
+                    Id = roomCall.RoomId,
+                    HostId = roomCall.HostId,
+                    GuestId = roomCall.GuestId,
+                    HostAccessToken = roomCall.HostAccessToken,
+                    GuestAccessToken = roomCall.GuestAccessToken,
+                }
             };
 
             _context.Appointments.Add(appontment);
@@ -93,8 +105,11 @@ namespace SecureDigitalHealthcare.Controllers
                                 .Include(x => x.Doctor.IdNavigation)
                                 .Include(x => x.Doctor.Speciality)
                                 .Include(x => x.Availability)
+                                .Include(x => x.RoomCall)
                                 .Where(x => x.DoctorId == AppAuthentication.GetCurrentUserId(User))
                                 .ToListAsync();
+
+            ViewBag.VideoCallUrl = VideoCallController.GetVideoCallUrl();
 
             return View(appointments);
         }
@@ -106,9 +121,12 @@ namespace SecureDigitalHealthcare.Controllers
                                 .Include(x => x.Doctor)
                                 .Include(x => x.Doctor.IdNavigation)
                                 .Include(x => x.Doctor.Speciality)
+                                .Include(x => x.RoomCall)
                                 .Include(x => x.Availability)
                                 .Where(x => x.PatientId == AppAuthentication.GetCurrentUserId(User))
                                 .ToListAsync();
+
+            ViewBag.VideoCallUrl = VideoCallController.GetVideoCallUrl();
 
             return View(appointments);
         }

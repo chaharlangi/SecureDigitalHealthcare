@@ -14,18 +14,20 @@ using Microsoft.CodeAnalysis.Elfie.Model;
 using SecureDigitalHealthcare.Utilities.Communication;
 using Microsoft.Extensions.Hosting;
 using SecureDigitalHealthcare.Controllers;
+using System.Configuration;
 
 
-//var room = await RoomCall.CreateRoomAsync();
+//var room = await RoomCallManager.CreateRoomAsync();
 //AppDebug.Log(room.ToString());
 
 
-//var rooms = await RoomCall.GetRoomsAsync();
+//await RoomCallManager.DeleteRoom(" 99548897045739884");
+var rooms = await RoomCallManager.GetRoomsAsync();
 //foreach (var item in rooms)
 //{
-//    await RoomCall.DeleteRoom(item.Id);
+//    await RoomCallManager.DeleteRoom(item.Id);
 //}
-//await RoomCall.GetRoomsAsync();
+//rooms = await RoomCallManager.GetRoomsAsync();
 
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
@@ -33,7 +35,6 @@ using SecureDigitalHealthcare.Controllers;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddScoped(typeof(AppController<>));
-//builder.Services.AddHttpClient<VideoCallController>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -55,6 +56,18 @@ else
 
 // Add services To the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowNodeApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:8080")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 
 builder.Services.AddAntiforgery(options =>
 {
@@ -159,6 +172,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("AllowNodeApp");
+
 app.UseRateLimiter();
 
 app.UseAuthentication();
@@ -191,7 +206,7 @@ app.Run();
 //    if (input is null)
 //        input = "0";
 
-//    RoomCall roomCall = new RoomCall();
+//    RoomCallManager roomCall = new RoomCallManager();
 //    int operation = int.Parse(input);
 
 //    switch (operation)

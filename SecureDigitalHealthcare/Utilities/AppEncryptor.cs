@@ -3,6 +3,7 @@ using System.Text;
 
 namespace SecureDigitalHealthcare.Utilities
 {
+
     public class AppEncryptor
     {
         private const string encryptionKey = "7RBOwUpx1cv7VR+Bi3tWyI+QkWwC5NN7";
@@ -67,5 +68,52 @@ namespace SecureDigitalHealthcare.Utilities
             byte[] decryptedBytes = DecryptBytes(encryptedBytes);
             return Encoding.UTF8.GetString(decryptedBytes);
         }
+
+        public static string DecryptString(string encryptedText, string ivString)
+        {
+            try
+            {
+                byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
+                byte[] keyBytes = Encoding.UTF8.GetBytes(encryptionKey);
+                byte[] ivBytes = Convert.FromBase64String(ivString); // Decode Base64 IV
+
+                if (ivBytes.Length != 16)
+                {
+                    throw new ArgumentException("Invalid IV length");
+                }
+
+                using (Aes aesAlg = Aes.Create())
+                {
+                    aesAlg.Key = keyBytes;
+                    aesAlg.IV = ivBytes;
+                    aesAlg.Padding = PaddingMode.PKCS7; // Ensure PKCS7 padding
+
+                    // Create a decryptor to perform the stream transform
+                    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                    using (MemoryStream msDecrypt = new MemoryStream(encryptedBytes))
+                    {
+                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                            {
+                                return srDecrypt.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("Base64 decoding failed: " + e.Message);
+                throw;
+            }
+            catch (CryptographicException e)
+            {
+                Console.WriteLine("Decryption failed: " + e.Message);
+                throw;
+            }
+        }
+
     }
 }

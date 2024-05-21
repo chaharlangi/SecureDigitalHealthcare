@@ -27,6 +27,8 @@ public partial class EasyHealthContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<RoomCall> RoomCalls { get; set; }
+
     public virtual DbSet<Speciality> Specialities { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -43,6 +45,7 @@ public partial class EasyHealthContext : DbContext
             entity.Property(e => e.DoctorId).HasDefaultValue(-1);
             entity.Property(e => e.Disease).HasColumnType("text");
             entity.Property(e => e.DoctorDescription).HasColumnType("text");
+            entity.Property(e => e.RoomCallId).HasMaxLength(100);
             entity.Property(e => e.Symptom).HasColumnType("text");
 
             entity.HasOne(d => d.Availability).WithMany(p => p.Appointments)
@@ -59,6 +62,11 @@ public partial class EasyHealthContext : DbContext
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Appointment_Patient");
+
+            entity.HasOne(d => d.RoomCall).WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.RoomCallId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Appointment_RoomCall");
         });
 
         modelBuilder.Entity<Availability>(entity =>
@@ -131,6 +139,13 @@ public partial class EasyHealthContext : DbContext
             entity.ToTable("Role");
 
             entity.Property(e => e.Name).HasMaxLength(10);
+        });
+
+        modelBuilder.Entity<RoomCall>(entity =>
+        {
+            entity.ToTable("RoomCall");
+
+            entity.Property(e => e.Id).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Speciality>(entity =>

@@ -21,9 +21,13 @@ public partial class Appointment
 
     public string? DoctorDescription { get; set; }
 
+    public string? RoomCallId { get; set; }
+
     public virtual Availability Availability { get; set; } = null!;
 
     public virtual Doctor Doctor { get; set; } = null!;
 
     public virtual User Patient { get; set; } = null!;
+
+    public virtual RoomCall? RoomCall { get; set; }
 }

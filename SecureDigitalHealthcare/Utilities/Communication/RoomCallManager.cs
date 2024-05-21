@@ -8,7 +8,7 @@ using Microsoft.Identity.Client;
 
 namespace SecureDigitalHealthcare.Utilities.Communication;
 
-public static class RoomCall
+public static class RoomCallManager
 {
     //private static readonly string connectionString = "https://easyhealthcommunicationservice.europe.communication.azure.com/";
     private static readonly string connectionString = "endpoint=https://easyhealthcommunicationservice.europe.communication.azure.com/;accesskey=i3cI3sXbr/agwxQs1lvJTq9zMpwHVRT7x1TaOM3EghKXj3hspvDj6hMzy59MI9ap7omCkQLws2cZlTFVY1tBjw==";
@@ -16,7 +16,7 @@ public static class RoomCall
     private static readonly RoomsClient _roomsClient = new RoomsClient(connectionString);
     private static readonly CommunicationIdentityClient _identityClient = new CommunicationIdentityClient(connectionString);
 
-    public record RoomData()
+    public record RoomCallData()
     {
         public string? RoomId { get; init; }
         public string? HostId { get; init; }
@@ -40,7 +40,7 @@ public static class RoomCall
         }
     }
 
-    public static async Task<RoomData> CreateRoomAsync(int durationValidMinutes = 60)
+    public static async Task<RoomCallData> CreateRoomAsync(int durationValidMinutes = 60)
     {
         if (durationValidMinutes < 60)
         {
@@ -85,7 +85,7 @@ public static class RoomCall
 
         CommunicationRoom createdRoom = await _roomsClient.CreateRoomAsync(createRoomOptions, cancellationToken);
 
-        RoomData roomData = new RoomData()
+        RoomCallData roomData = new RoomCallData()
         {
             RoomId = createdRoom.Id,
             HostId = hostUserIdentifier.RawId,

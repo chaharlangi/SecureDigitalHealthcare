@@ -188,10 +188,7 @@ namespace SecureDigitalHealthcare.Utilities
                 IsPersistent = rememberMe
             };
 
-            await httpContext.SignInAsync(
-                               CookieAuthenticationDefaults.AuthenticationScheme,
-                                              new ClaimsPrincipal(claimsIdentity),
-                                                             authProperties);
+            await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
         }
         public static void SignOut(HttpContext httpContext)
         {
