@@ -1,0 +1,7 @@
+{
+    "editor.lineHeight": 2.5,
+    "editor.wordWrap": "on",
+    "editor.fontSize": 15,
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/23a45f5c-76ca-445b-b246-3f536d226add/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/EasyHealthVideoCall",
+    "appService.deploySubpath": "."
+}
