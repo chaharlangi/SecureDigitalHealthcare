@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
 using SecureDigitalHealthcare.DTOs;
+using Humanizer;
+using NuGet.Protocol.Plugins;
 
 namespace SecureDigitalHealthcare.Controllers
 {
@@ -56,9 +58,11 @@ namespace SecureDigitalHealthcare.Controllers
         [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         public IActionResult GetDoctorAvailabilites()
         {
-            Doctor doctor = _context.Doctors.Include(d => d.Availabilities).FirstOrDefault(d => d.Id == AppAuthentication.GetCurrentUserId(User));
+            Doctor doctor = _context.Doctors.Include(d => d.Appointments).Include(d => d.Availabilities).FirstOrDefault(d => d.Id == AppAuthentication.GetCurrentUserId(User))!;
+            //var availabilities = doctor.Availabilities.Where(x => x.StartTime.Date >= DateTime.Now.Date);
+            var availabilities = doctor.Availabilities;
 
-            return View(doctor.Availabilities.Where(x => x.StartTime.Date >= DateTime.Now.Date));
+            return View(availabilities);
         }
 
         [Authorize(Policy = PolicyConstants.MustBeDoctor)]
@@ -84,17 +88,6 @@ namespace SecureDigitalHealthcare.Controllers
                 .Any(x => x.DoctorId == addAvailabilityDTO.DoctorId &&
                     (x.StartTime <= addAvailabilityDTO.StartTime && x.EndTime >= addAvailabilityDTO.StartTime)) == false;
 
-            //foreach (var item in _context.Availabilities)
-            //{
-            //    bool conflict = (item.StartTime <= addAvailabilityDTO.StartTime && item.EndTime >= addAvailabilityDTO.StartTime);
-            //    string result = "\n";
-            //    result += $"Proposed:\t{addAvailabilityDTO.StartTime}\n";
-            //    result += $"Start:\t{item.StartTime} < (={item.StartTime <= addAvailabilityDTO.StartTime}=)\n";
-            //    result += $"End:\t{item.EndTime} > (={item.EndTime >= addAvailabilityDTO.StartTime}=)\n";
-            //    result += $"Conflicts:\t{conflict}\n";
-            //    AppDebug.Log($"{result}");
-            //}
-            //return Content(canAddAvailability.ToString());
             var doctor = await _context.Doctors.Include(d => d.Availabilities).FirstOrDefaultAsync(d => d.Id == addAvailabilityDTO.DoctorId);
 
             if (canAddAvailability == true)
@@ -111,12 +104,70 @@ namespace SecureDigitalHealthcare.Controllers
             }
             else
             {
-                AppDebug.Log("Availability already exists");
+                ViewData[ViewDataConstants.ValidationMessage] = "The availabilities already exists!";
             }
 
-            ViewData[ViewDataConstants.ValidationMessage] = "This availability already exists";
 
-            return RedirectToAction(nameof(GetDoctorAvailabilites));
+            return View(nameof(GetDoctorAvailabilites), doctor.Availabilities);
+        }
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
+        [HttpPost]
+        public async Task<IActionResult> AddPredefinedAvailibility(PredefinedAvailability predefinedAvailability)
+        {
+            var year = predefinedAvailability.date.Year;
+            var month = predefinedAvailability.date.Month;
+            var day = predefinedAvailability.date.Day;
+
+            var from = new DateTime(year, month, day, predefinedAvailability.from.Hour, predefinedAvailability.date.Minute, predefinedAvailability.date.Second);
+            var to = new DateTime(year, month, day, predefinedAvailability.to.Hour, predefinedAvailability.to.Minute, predefinedAvailability.to.Second);
+
+            if (from > to)
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = "The start time is greater than the end time!";
+                return View(nameof(GetDoctorAvailabilites), predefinedAvailability);
+            }
+
+            var doctor = await _context.Doctors.Include(d => d.Availabilities).FirstOrDefaultAsync(x => x.Id == AppAuthentication.GetCurrentUserId(User));
+
+            DateTime currentStart = from;
+
+            while (currentStart.AddMinutes(predefinedAvailability.minutes) <= to)
+            {
+                DateTime currentEnd = currentStart.AddMinutes(predefinedAvailability.minutes);
+
+                if (currentEnd > to)
+                {
+                    currentEnd = to;
+                }
+
+                var canAddAvailability = _context.Availabilities
+                    .Any(x => x.DoctorId == doctor.Id &&
+                        (x.StartTime <= currentStart && x.EndTime >= currentStart)) == false;
+
+                if (canAddAvailability)
+                {
+                    doctor.Availabilities.Add(new Availability
+                    {
+                        DoctorId = doctor.Id,
+                        StartTime = currentStart,
+                        EndTime = currentEnd,
+                        Taken = false
+                    });
+                }
+                else
+                {
+                    ViewData[ViewDataConstants.ValidationMessage] = "One of the availabilities already exists!";
+
+                    return View(nameof(GetDoctorAvailabilites), doctor.Availabilities);
+                }
+
+                currentStart = currentEnd;
+            }
+
+            await _context.SaveChangesAsync();
+
+
+            return View(nameof(GetDoctorAvailabilites), doctor.Availabilities);
         }
 
         public static List<DoctorDTO> GetListsByDoctors(List<Doctor> doctors)

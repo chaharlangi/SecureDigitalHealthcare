@@ -94,12 +94,6 @@ namespace SecureDigitalHealthcare.Controllers
         [Authorize(Policy = PolicyConstants.MustBeDoctor)]
         public async Task<IActionResult> GetDoctorAppointments()
         {
-            //foreach (var item in HttpContext.User.Identities)
-            //{
-            //    AppDebug.Log($"{item.NameClaimType}, {item.RoleClaimType}, {item.Name}");
-            //};
-            //return Content($"{HttpContext.User.Claims}");
-
             var appointments = await _context.Appointments
                                 .Include(x => x.Patient)
                                 .Include(x => x.Doctor)
@@ -133,6 +127,58 @@ namespace SecureDigitalHealthcare.Controllers
         }
 
         [Authorize(Policy = PolicyConstants.MustBeDoctorOrPatient)]
+        public async Task<IActionResult> AppointmentDetails(Appointment appointment)
+        {
+            var wantedAppointment = await _context.Appointments
+                .Where(x => x.DoctorId == appointment.DoctorId && x.PatientId == appointment.PatientId && x.AvailabilityId == appointment.AvailabilityId)
+                .Include(x => x.Patient)
+                .Include(x => x.Doctor)
+                .Include(x => x.Doctor.IdNavigation)
+                .Include(x => x.Doctor.Speciality)
+                .Include(x => x.Availability)
+                .Include(x => x.RoomCall).FirstOrDefaultAsync();
+
+            if (AppAuthentication.IsDoctor(User))
+            {
+                ViewBag.canEditAppointment = true;
+            }
+            else
+            {
+                ViewBag.canEditAppointment = false;
+            }
+
+            return View(wantedAppointment);
+        }
+
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
+        [HttpPost]
+        public async Task<IActionResult> EditAppointment(EditAppointmentDTO editAppointmentDTO)
+        {
+            var wantedAppointment = _context.Appointments.Where(x => x.DoctorId == editAppointmentDTO.DoctorId && x.PatientId == editAppointmentDTO.PatientId && x.AvailabilityId == editAppointmentDTO.AvailabilityId)
+                .FirstOrDefault()!;
+
+            wantedAppointment.Done = true;
+            wantedAppointment.Symptom = editAppointmentDTO.Symptom;
+            wantedAppointment.Disease = editAppointmentDTO.Disease;
+            wantedAppointment.DoctorDescription = editAppointmentDTO.DoctorDescription;
+
+            _context.Appointments.Update(wantedAppointment);
+            await _context.SaveChangesAsync();
+
+            //var wantedAppointment = await _context.Appointments
+            //    .Where(x => x.DoctorId == appointment.DoctorId && x.PatientId == appointment.PatientId && x.AvailabilityId == appointment.AvailabilityId)
+            //    .Include(x => x.Patient)
+            //    .Include(x => x.Doctor)
+            //    .Include(x => x.Doctor.IdNavigation)
+            //    .Include(x => x.Doctor.Speciality)
+            //    .Include(x => x.Availability)
+            //    .Include(x => x.RoomCall).FirstOrDefaultAsync();
+
+            return RedirectToAction(nameof(GetDoctorAppointments));
+        }
+
+
+        [Authorize(Policy = PolicyConstants.MustBeDoctorOrPatient)]
         [HttpPost]
         public async Task<IActionResult> CancelAppointment(CancelAppointmentDTO cancelAppointment)
         {
@@ -154,5 +200,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             return AppAuthentication.IsDoctor(User) ? RedirectToAction(nameof(GetDoctorAppointments)) : RedirectToAction(nameof(GetPatientAppointments));
         }
+
+
     }
 }

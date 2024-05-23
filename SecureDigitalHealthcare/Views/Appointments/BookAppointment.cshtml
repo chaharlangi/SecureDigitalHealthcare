@@ -53,8 +53,9 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Start Time</th>
-                            <th>End Time</th>
+                            <th>Date</th>
+                            <th>From</th>
+                            <th>To</th>
                             <th>Duration</th>
                             <th></th>
                         </tr>
@@ -67,8 +68,9 @@
                             var duration = (availability.EndTime - availability.StartTime).TotalMinutes;
 
                             <tr>
-                                <td>@availability.StartTime</td>
-                                <td>@availability.EndTime</td>
+                                <td>@availability.StartTime.ToString("dd/MM/yyyy")</td>
+                                <td>@availability.StartTime.ToString("HH:mm")</td>
+                                <td>@availability.EndTime.ToString("HH:mm")</td>
                                 <td>@duration°</td>
                                 <td>
                                     <form method="post" action="@GetUrlActionBookAppointment(availability.DoctorId,availability.StartTime,availability.EndTime,availability.Taken)">

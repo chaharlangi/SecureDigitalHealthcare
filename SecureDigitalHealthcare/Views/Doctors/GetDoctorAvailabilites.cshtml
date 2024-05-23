@@ -3,6 +3,7 @@
 @using SecureDigitalHealthcare.Controllers
 @model IEnumerable<SecureDigitalHealthcare.Models.Availability>
 @inject AppController<DoctorsController> doctorsController
+@inject AppController<AppointmentsController> appointmentsController
 
 @{
     ViewData["Title"] = "Availabilites";
@@ -13,9 +14,17 @@
     {
         return doctorsController.CallAction(c => c.DeleteAvailibility(null));
     }
-    private string GetUrlActionAddAvailability()
+    private string GetUrlActionAddCustomAvailability()
     {
         return doctorsController.CallAction(c => c.AddAvailibility(null));
+    }
+    private string GetUrlActionAddPredefinedAvailability()
+    {
+        return doctorsController.GetActionUrl(nameof(DoctorsController.AddPredefinedAvailibility));
+    }
+    private string GetHrefAppointmentDetails(Appointment appointment)
+    {
+        return appointmentsController.CallAction(c => c.AppointmentDetails(appointment));
     }
 }
 
@@ -37,7 +46,8 @@
             </th>
             <th>
             </th>
-            <th></th>
+            <th>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -58,13 +68,11 @@
                 </td>
                 <td>
                     @{
-                        string taken = "";
-                        if(item.Taken == true)
+                        if (item.Taken == true)
                         {
-                            taken = "Booked";
+                            <a class="btn btn-warning" target="_blank" href="@GetHrefAppointmentDetails(item.Appointments.FirstOrDefault(x=>x.DoctorId==item.DoctorId))">See Appointment</a>
                         }
                     }
-                    @taken
                 </td>
                 <td>
                     @if (item.Taken == false)
@@ -90,7 +98,12 @@
             </tr>
         }
         <tr>
-            <form action="@GetUrlActionAddAvailability()" method="post">
+            <td colspan="5">
+                <p class="alert text-success">Add your custom availability</p>
+            </td>
+        </tr>
+        <tr>
+            <form action="@GetUrlActionAddCustomAvailability()" method="post">
                 <input type="hidden" name="@nameof(AvailabilityDTO.DoctorId)" value="@AppAuthentication.GetCurrentUserId(User)" />
             <td>
                 <div class="form-group">
@@ -103,6 +116,70 @@
                 </div>
             </td>
             <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input type="submit" value="Add" class="btn btn-success" />
+                </div>
+            </td>
+            </form>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <p class="alert text-success">Add 30-minutes availabilities in the following date between your favorite times</p>
+            </td>
+        </tr>
+        <tr>
+            <form action="@GetUrlActionAddPredefinedAvailability()" method="post">
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="date" name="@nameof(PredefinedAvailability.date)" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="time" name="@nameof(PredefinedAvailability.from)" value="@DateTime.Today.AddHours(8).ToString("HH:mm")" />
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="time" name="@nameof(PredefinedAvailability.to)" value="@DateTime.Today.AddHours(8 + 4 ).ToString("HH:mm")" />
+                </div>
+                <input name="@nameof(PredefinedAvailability.minutes)" type="number" value="30" hidden>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input type="submit" value="Add" class="btn btn-success" />
+                </div>
+            </td>
+            </form>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <p class="alert text-success">Add 1-hour availabilities in the following date between your favorite times</p>
+            </td>
+        </tr>
+        <tr>
+            <form action="@GetUrlActionAddPredefinedAvailability()" method="post">
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="date" name="@nameof(PredefinedAvailability.date)" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="time" name="@nameof(PredefinedAvailability.from)" value="@DateTime.Today.AddHours(8).ToString("HH:mm")" />
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input class="form-control" type="time" name="@nameof(PredefinedAvailability.to)" value="@DateTime.Today.AddHours(8 + 4 ).ToString("HH:mm")" />
+                </div>
+                <input name="@nameof(PredefinedAvailability.minutes)" type="number" value="60" hidden>
             </td>
             <td>
             </td>

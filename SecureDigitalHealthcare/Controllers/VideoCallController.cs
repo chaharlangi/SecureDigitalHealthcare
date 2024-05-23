@@ -24,12 +24,19 @@ namespace SecureDigitalHealthcare.Controllers
             _configuration = configuration;
             _environment = environment;
         }
-
+        public static bool IsRunningOnAzureAppService()
+        {
+            string websiteInstanceId = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
+            return !string.IsNullOrEmpty(websiteInstanceId);
+        }
+        public static string AzureWebsiteName()
+        {
+            string websiteSiteName = Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME");
+            return websiteSiteName;
+        }
         public static string GetVideoCallUrl()
         {
-            //string url = _configuration["ConnectionStrings:VideoCallWebsite"]!;
-
-            return "http://localhost:8080/";
+            return IsRunningOnAzureAppService() ? "https://easyhealthvideocallplugin.azurewebsites.net/" : "http://localhost:8080/";
         }
 
         public IActionResult Index(string encryptedUserAccessToken, string ivBase64)

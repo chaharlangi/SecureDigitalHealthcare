@@ -21,6 +21,10 @@
 
         return appointmentsController.CallAction(c => c.CancelAppointment(cancelAppointmentDTO));
     }
+    public string GetUrlActionAppointmentDetails(Appointment appointment)
+    {
+        return appointmentsController.CallAction(c => c.AppointmentDetails(appointment));
+    }
 }
 
 <h2>Your Upcomming Patients</h2>
@@ -48,8 +52,10 @@
             <th>
             </th>
             <th>
+                State
             </th>
-            <th></th>
+            <th>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -97,7 +103,21 @@
                     @duration
                 </td>
                 <td class="align-content-center">
-                    <a onclick="copyText();" href="@ViewBag.VideoCallUrl" class="btn btn-primary" target="_blank">Enter</a>
+                    <a href="@GetUrlActionAppointmentDetails(item)" class="btn btn-warning">Details</a>
+                </td>
+                <td class="align-content-center">
+                    @if (item.Availability.StartTime <= DateTime.Now && item.Availability.EndTime >= DateTime.Now)
+                    {
+                        <a onclick="copyText();" href="@ViewBag.VideoCallUrl" class="btn btn-primary" target="_blank">Enter</a>
+                    }
+                    else if (item.Availability.EndTime >= DateTime.Now)
+                    {
+                        <span class="btn btn-outline-success">Pending</span>
+                    }
+                    else
+                    {
+                        <span class="btn btn-success">Finished</span>
+                    }
                 </td>
                 <td class="align-content-center">
                     <form action="@GetUrlActionCancelAppointment(item)" method="post">

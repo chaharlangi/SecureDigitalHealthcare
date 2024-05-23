@@ -11,9 +11,7 @@ public partial class Appointment
 
     public int AvailabilityId { get; set; }
 
-    public bool? Accepted { get; set; }
-
-    public bool? Done { get; set; }
+    public bool Done { get; set; }
 
     public string? Symptom { get; set; }
 

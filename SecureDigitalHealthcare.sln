@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecureDigitalHealthcare", "SecureDigitalHealthcare\SecureDigitalHealthcare.csproj", "{D7D9C467-1948-43D0-9F34-9D487043064A}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "EasyHealthVideoCall", "EasyHealthVideoCall\EasyHealthVideoCall.njsproj", "{64DB3C25-F601-4737-876D-F464A655AF4F}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "EasyHealthVideoCall", "EasyHealthVideoCall\EasyHealthVideoCall.esproj", "{60E472FB-BF56-4288-BD08-8FCB732296C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,12 @@ Global
 		{D7D9C467-1948-43D0-9F34-9D487043064A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7D9C467-1948-43D0-9F34-9D487043064A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7D9C467-1948-43D0-9F34-9D487043064A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64DB3C25-F601-4737-876D-F464A655AF4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64DB3C25-F601-4737-876D-F464A655AF4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64DB3C25-F601-4737-876D-F464A655AF4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64DB3C25-F601-4737-876D-F464A655AF4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60E472FB-BF56-4288-BD08-8FCB732296C5}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

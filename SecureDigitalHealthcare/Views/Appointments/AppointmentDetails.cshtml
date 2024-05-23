@@ -1,0 +1,151 @@
+﻿@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.DTOs
+@using SecureDigitalHealthcare.Utilities
+@model SecureDigitalHealthcare.Models.Appointment
+@inject AppController<AppointmentsController> appointmentsController
+
+@{
+    ViewData["Title"] = "View";
+}
+
+@functions {
+    public string GetUrlActionEditAppointment()
+    {
+        return appointmentsController.CallAction(c => c.EditAppointment(null));
+    }
+    public string GetHrefBackToListDoctors()
+    {
+        return appointmentsController.GetActionUrl(nameof(AppointmentsController.GetDoctorAppointments));
+    }
+    public string GetHrefBackToListPatients()
+    {
+        return appointmentsController.GetActionUrl(nameof(AppointmentsController.GetPatientAppointments));
+    }
+}
+@{
+    bool canEditAppointment = ViewBag.canEditAppointment;
+}
+
+<h4>Appointment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group mt-3">
+            <p class="fw-bold">Patient</p>
+            <p class="fw-bold">Age</p>
+            <p class="fw-bold">Date</p>
+            <p class="fw-bold">Start on</p>
+            <p class="fw-bold">End on</p>
+            <p class="fw-bold">Duration</p>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+        <div class="form-group mt-3">
+            @{
+                string age = $"{(DateTime.Now.Year - Model.Patient.BirthDate.Year)}";
+                string duration = $"{(Model.Availability.EndTime - Model.Availability.StartTime).TotalMinutes}";
+            }
+            <p class="fw-normal">@Model.Patient.Name @Model.Patient.LastName</p>
+            <p class="fw-normal">@age</p>
+
+            <p class="fw-normal">@Model.Availability.StartTime.ToString("dd/MM/yyyy")</p>
+
+            <p class="fw-normal">@Model.Availability.StartTime.ToString("HH:mm")</p>
+
+            <p class="fw-normal">@Model.Availability.EndTime.ToString("HH:mm")</p>
+
+            <p class="fw-normal">@duration°</p>
+        </div>
+    </div>
+
+
+    <div class="col-md-2">
+        <div class="form-group mt-3">
+            <p class="fw-bold">Doctor</p>
+            <p class="fw-bold">Speciality</p>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+        <div class="form-group mt-3">
+            <p class="fw-normal">@Model.Doctor.IdNavigation.Name @Model.Doctor.IdNavigation.LastName</p>
+            <p class="fw-normal">@Model.Doctor.Speciality.Name</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <form method="post" action="@GetUrlActionEditAppointment()">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PatientId" />
+            <input type="hidden" asp-for="DoctorId" />
+            <input type="hidden" asp-for="AvailabilityId" />
+
+            <div class="form-group mt-3">
+                <label asp-for="Symptom" class="control-label"></label>
+                @if (canEditAppointment)
+                {
+                    <textarea asp-for="Symptom" class="form-control  mt-1" rows="4"></textarea>
+                }
+                else
+                {
+                    <textarea asp-for="Symptom" class="form-control  mt-1" rows="4" readonly></textarea>
+                }
+                <span asp-validation-for="Symptom" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <label asp-for="Disease" class="control-label"></label>
+                @if (canEditAppointment)
+                {
+                    <textarea asp-for="Disease" class="form-control  mt-1" rows="4"></textarea>
+                }
+                else
+                {
+                    <textarea asp-for="Disease" class="form-control  mt-1" rows="4" readonly></textarea>
+                }
+                <span asp-validation-for="Disease" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <label asp-for="DoctorDescription" class="control-label"></label>
+                @if (canEditAppointment)
+                {
+                    <textarea asp-for="DoctorDescription" class="form-control  mt-1" rows="4"></textarea>
+                }
+                else
+                {
+                    <textarea asp-for="DoctorDescription" class="form-control  mt-1" rows="4" readonly></textarea>
+                }
+                <span asp-validation-for="DoctorDescription" class="text-danger"></span>
+            </div>
+            @if (canEditAppointment)
+            {
+                <div class="form-group mt-3">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            }
+        </form>
+    </div>
+
+
+</div>
+
+<div class=" mt-3">
+    @if (canEditAppointment)
+    {
+        <a class="btn btn-success" href="@GetHrefBackToListDoctors()">Back to List</a>
+    }
+    else
+    {
+        <a class="btn btn-success" href="@GetHrefBackToListPatients()">Back to List</a>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
