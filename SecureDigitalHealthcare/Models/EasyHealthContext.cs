@@ -37,7 +37,7 @@ public partial class EasyHealthContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => new { e.PatientId, e.DoctorId });
+            entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AvailabilityId });
 
             entity.ToTable("Appointment");
 

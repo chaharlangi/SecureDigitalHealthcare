@@ -21,8 +21,7 @@ using System.Configuration;
 //AppDebug.Log(room.ToString());
 
 
-//await RoomCallManager.DeleteRoom(" 99548897045739884");
-var rooms = await RoomCallManager.GetRoomsAsync();
+//var rooms = await RoomCallManager.GetRoomsAsync();
 //foreach (var item in rooms)
 //{
 //    await RoomCallManager.DeleteRoom(item.Id);
@@ -35,6 +34,7 @@ var rooms = await RoomCallManager.GetRoomsAsync();
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddScoped(typeof(AppController<>));
+builder.Services.AddScoped(typeof(AppControllerDepricated<>));
 
 if (builder.Environment.IsDevelopment())
 {

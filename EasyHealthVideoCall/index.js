@@ -192,6 +192,45 @@ subscribeToRemoteParticipant = (remoteParticipant) => {
  * changes to 'true', a remote participant is sending a stream. Whenever availability of a remote stream changes
  * you can choose to destroy the whole 'Renderer', a specific 'RendererView' or keep them, but this will result in displaying blank video frame.
  */
+// subscribeToRemoteVideoStream = async (remoteVideoStream) => {
+//   let renderer = new VideoStreamRenderer(remoteVideoStream);
+//   let view;
+//   let remoteVideoContainer = document.createElement("div");
+//   remoteVideoContainer.className = "remote-video-container";
+
+//   const createView = async () => {
+//     // Create a renderer view for the remote video stream.
+//     view = await renderer.createView();
+//     // Attach the renderer view to the UI.
+//     remoteVideoContainer.appendChild(view.target);
+//     remoteVideosGallery.appendChild(remoteVideoContainer);
+//   };
+
+//   // Remote participant has switched video on/off
+//   remoteVideoStream.on("isAvailableChanged", async () => {
+//     try {
+//       if (remoteVideoStream.isAvailable) {
+//         await createView();
+//       } else {
+//         view.dispose();
+//         remoteVideosGallery.removeChild(remoteVideoContainer);
+//       }
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   });
+
+//   // Remote participant has video on initially.
+//   if (remoteVideoStream.isAvailable) {
+//     try {
+//       await createView();
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   }
+// };
+
+//s
 subscribeToRemoteVideoStream = async (remoteVideoStream) => {
   let renderer = new VideoStreamRenderer(remoteVideoStream);
   let view;
@@ -199,36 +238,42 @@ subscribeToRemoteVideoStream = async (remoteVideoStream) => {
   remoteVideoContainer.className = "remote-video-container";
 
   const createView = async () => {
-    // Create a renderer view for the remote video stream.
-    view = await renderer.createView();
-    // Attach the renderer view to the UI.
-    remoteVideoContainer.appendChild(view.target);
-    remoteVideosGallery.appendChild(remoteVideoContainer);
+      // Create a renderer view for the remote video stream.
+      view = await renderer.createView();
+      // Apply styles to the video element to ensure it fits the parent container.
+      view.target.style.width = "100%";
+      view.target.style.height = "100%";
+      view.target.style.objectFit = "cover";
+      // Attach the renderer view to the UI.
+      remoteVideoContainer.appendChild(view.target);
+      document.getElementById('remoteVideosGallery').appendChild(remoteVideoContainer);
   };
 
   // Remote participant has switched video on/off
   remoteVideoStream.on("isAvailableChanged", async () => {
-    try {
-      if (remoteVideoStream.isAvailable) {
-        await createView();
-      } else {
-        view.dispose();
-        remoteVideosGallery.removeChild(remoteVideoContainer);
+      try {
+          if (remoteVideoStream.isAvailable) {
+              await createView();
+          } else {
+              view.dispose();
+              remoteVideosGallery.removeChild(remoteVideoContainer);
+          }
+      } catch (e) {
+          console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
   });
 
   // Remote participant has video on initially.
   if (remoteVideoStream.isAvailable) {
-    try {
-      await createView();
-    } catch (e) {
-      console.error(e);
-    }
+      try {
+          await createView();
+      } catch (e) {
+          console.error(e);
+      }
   }
 };
+
+//s
 
 /**
  * Start your local video stream.

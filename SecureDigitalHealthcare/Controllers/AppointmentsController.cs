@@ -51,6 +51,7 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpPost]
         public async Task<IActionResult> BookAppointment(int doctorId, DateTime startTime, DateTime endTime, bool taken)
         {
+            //return Content($"{doctorId}, {startTime}, {endTime}, {taken}");
             Availability availability = new Availability()
             {
                 DoctorId = doctorId,
@@ -129,6 +130,29 @@ namespace SecureDigitalHealthcare.Controllers
             ViewBag.VideoCallUrl = VideoCallController.GetVideoCallUrl();
 
             return View(appointments);
+        }
+
+        [Authorize(Policy = PolicyConstants.MustBeDoctorOrPatient)]
+        [HttpPost]
+        public async Task<IActionResult> CancelAppointment(CancelAppointmentDTO cancelAppointment)
+        {
+            var appointment = await _context.Appointments
+                .Include(x => x.Availability)
+                .Include(x => x.RoomCall)
+                .FirstOrDefaultAsync(x => x.DoctorId == cancelAppointment.DoctorId && x.PatientId == cancelAppointment.PatientId && x.AvailabilityId == cancelAppointment.AvailabilityId);
+
+            //return Content($"DoctorId: {cancelAppointment.DoctorId}, PatientId: {cancelAppointment.PatientId}, AvailabilityId: {cancelAppointment.AvailabilityId}");
+
+            appointment.Availability.Taken = false;
+
+            _context.Appointments.Remove(appointment);
+            _context.RoomCalls.Remove(appointment.RoomCall);
+
+            await _context.SaveChangesAsync();
+
+            await RoomCallManager.DeleteRoom(appointment.RoomCall.Id);
+
+            return AppAuthentication.IsDoctor(User) ? RedirectToAction(nameof(GetDoctorAppointments)) : RedirectToAction(nameof(GetPatientAppointments));
         }
     }
 }

@@ -19,6 +19,8 @@
     }
     public string GetUrlActionBookAppointment(int doctorId, DateTime startTime, DateTime endTime, bool taken)
     {
+        // AppDebug.Log(doctorId, startTime, endTime, taken);
+
         return appointmentController.CallAction(x => x.BookAppointment(doctorId, startTime, endTime, taken));
     }
     public string GetUrlActionSubmitComment(int receiverId, int? replyToId)
