@@ -20,6 +20,17 @@ namespace SecureDigitalHealthcare.Controllers
         private readonly EasyHealthContext _context;
         private readonly IWebHostEnvironment _environment;
 
+        private ChangePasswordDTO EmptyChangePasswordDTO
+        {
+            get => new ChangePasswordDTO()
+            {
+                Email = AppAuthentication.GetCurrentUserEmail(User),
+                IsResetLink = false,
+                OTP = "",
+                Password = ""
+            };
+        }
+
         public AccountController(EasyHealthContext context, IWebHostEnvironment environment)
         {
             _context = context;
@@ -107,7 +118,7 @@ namespace SecureDigitalHealthcare.Controllers
             user.ProfileImagePath = HandleNewProfilePicture(_environment, profilePictureInput);
             await AddNewUser(_context, user);
 
-            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, AppRole.Patient, true);
+            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, user.Email, AppRole.Patient, true);
 
             return RedirectToAction("Index", "Home");
 
@@ -154,7 +165,7 @@ namespace SecureDigitalHealthcare.Controllers
 
             if (IsAdmin(newUser.Email, newUser.Password))
             {
-                await AppAuthentication.SignIn(HttpContext, -1, "admin", AppRole.Admin, newUser.RememberMe);
+                await AppAuthentication.SignIn(HttpContext, -1, "admin", newUser.Email, AppRole.Admin, newUser.RememberMe);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -171,7 +182,7 @@ namespace SecureDigitalHealthcare.Controllers
                 return View();
             }
 
-            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, user.Role.Name!, newUser.RememberMe);
+            await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, user.Email, user.Role.Name!, newUser.RememberMe);
 
             return RedirectToAction("Index", "Home");
         }
@@ -245,11 +256,16 @@ namespace SecureDigitalHealthcare.Controllers
         [AllowAnonymous]
         public IActionResult ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
-
             if (string.IsNullOrEmpty(changePasswordDTO.OTP))
+            //if (changePasswordDTO is null)
             {
-                return View(null);
+                AppDebug.Log("inja");
+
+                return View(EmptyChangePasswordDTO);
             }
+            AppDebug.Log("ounja");
+
+            changePasswordDTO.IsResetLink = true;
 
             return View(changePasswordDTO);
         }
@@ -264,19 +280,24 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpPost]
         public async Task<IActionResult> SendOTP(string email)
         {
+            AppDebug.Log(email);
+            if (string.IsNullOrEmpty(email))
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = $"Please input your email!";
+                return View(nameof(ChangePassword), EmptyChangePasswordDTO);
+            }
             if (AppAuthentication.CanSendOTP(HttpContext) == false)
             {
                 ViewData[ViewDataConstants.ValidationMessage] = $"You must wait a while for sending the otp again. It is already sent!";
-                return View(nameof(ChangePassword));
+                return View(nameof(ChangePassword), EmptyChangePasswordDTO);
             }
-
             string generatedOtp = AppAuthentication.GenerateOTPCode();
             AppAuthentication.SetExpiryOTPCode(HttpContext, generatedOtp);
 
             await SendEmail(email, "EasyHealth: OTP", generatedOtp);
 
             ViewData[ViewDataConstants.ValidationMessage] = $"Please check your email for OTP";
-            return View(nameof(ChangePassword));
+            return View(nameof(ChangePassword), EmptyChangePasswordDTO);
         }
         [AllowAnonymous]
         [HttpPost]
@@ -329,6 +350,12 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitNewPasswordOTP(string password, string otp)
         {
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(otp))
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = $"Please fill all the fields!";
+                return View(nameof(ChangePassword), EmptyChangePasswordDTO);
+            }
+            AppDebug.Log(otp);
             if (AppAuthentication.GetOTPCode(HttpContext) == otp)
             {
                 bool changedPassword = await SetPassword(_context, AppAuthentication.GetCurrentUserId(User), password);
@@ -339,7 +366,7 @@ namespace SecureDigitalHealthcare.Controllers
             else
             {
                 ViewData[ViewDataConstants.ValidationMessage] = $"Wrong OTP! Try again";
-                return View(nameof(ChangePassword));
+                return View(nameof(ChangePassword), EmptyChangePasswordDTO);
             }
         }
         [ValidateAntiForgeryToken]
@@ -347,6 +374,12 @@ namespace SecureDigitalHealthcare.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitNewPasswordForget(string email, string password, string otp)
         {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(otp))
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = $"Please fill all the fields!";
+                return View(nameof(ChangePassword), EmptyChangePasswordDTO);
+            }
+
             if (AppAuthentication.VerifyUserForgetPasswordToken(_context, email, otp))
             {
                 bool changedPassword = await SetPassword(_context, email, password);

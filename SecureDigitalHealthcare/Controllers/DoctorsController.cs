@@ -30,14 +30,17 @@ namespace SecureDigitalHealthcare.Controllers
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));
         }
         [Authorize(Policy = PolicyConstants.MustBePatient)]
-        public IActionResult GetDoctorsByLastName(string lastName)
+        public IActionResult GetDoctorsByName(string doctorName)
         {
-            if (string.IsNullOrEmpty(lastName))
+            if (string.IsNullOrEmpty(doctorName))
             {
                 return RedirectToAction(nameof(GetAllDoctors));
             }
 
-            var doctors = _context.Doctors.Include(d => d.Speciality).Include(d => d.IdNavigation).Where(d => d.IdNavigation.LastName.Contains(lastName)).ToList();
+            var doctors = _context.Doctors
+                .Include(d => d.IdNavigation)
+                .Where(d => d.IdNavigation.Name.Contains(doctorName) || d.IdNavigation.LastName.Contains(doctorName))
+                .Include(d => d.Speciality).ToList();
 
 
             return View(ViewDoctorsListToBook, DoctorsController.GetListsByDoctors(doctors));

@@ -47,7 +47,16 @@ namespace SecureDigitalHealthcare.Utilities
         }
         public static string GetOTPCode(HttpContext httpContext)
         {
-            return AppEncryptor.DecryptString(httpContext.Request.Cookies[OTPCode]!);
+            var otpEncrypted = httpContext.Request.Cookies[OTPCode];
+
+            if(otpEncrypted is not null)
+            {
+                return AppEncryptor.DecryptString(otpEncrypted);
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
         public static DateTime? GetLastTimeOTPSent(HttpContext httpContext)
         {
@@ -171,11 +180,12 @@ namespace SecureDigitalHealthcare.Utilities
 
 
 
-        public static async Task SignIn(HttpContext httpContext, int userId, string userName, string role, bool rememberMe)
+        public static async Task SignIn(HttpContext httpContext, int userId, string userName, string userEmail, string role, bool rememberMe)
         {
             List<Claim> claims =
             [
                 new Claim(ClaimTypes.Sid, userId.ToString()),
+                new Claim(ClaimTypes.Email, userEmail),
                 new Claim(ClaimTypes.Name, userName),
                 new Claim(ClaimTypes.Role, role)
             ];
@@ -206,7 +216,11 @@ namespace SecureDigitalHealthcare.Utilities
         }
         public static int GetCurrentUserId(ClaimsPrincipal user)
         {
-            return int.Parse(user.FindFirst(ClaimTypes.Sid).Value);
+            return int.Parse(user.FindFirst(ClaimTypes.Sid)!.Value);
+        }
+        public static string GetCurrentUserEmail(ClaimsPrincipal user)
+        {
+            return user.FindFirst(ClaimTypes.Email)!.Value;
         }
 
         public static bool IsAdmin(HttpContext httpContext)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SecureDigitalHealthcare.Models;
@@ -12,9 +13,8 @@ public partial class User
     public string LastName { get; set; } = null!;
 
     public string PhoneNumber { get; set; } = null!;
-
     public string Address { get; set; } = null!;
-
+    [ValidateNever]
     public string ProfileImagePath { get; set; } = null!;
 
     public DateTime BirthDate { get; set; }

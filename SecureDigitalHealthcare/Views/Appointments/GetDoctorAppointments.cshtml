@@ -27,7 +27,7 @@
     }
 }
 
-<h2>Your Upcomming Patients</h2>
+<h3 class="mb-3 mt-3">Your Appointments</h3>
 
 <table class="table">
     <thead>
@@ -50,9 +50,9 @@
                 Duration
             </th>
             <th>
+                State
             </th>
             <th>
-                State
             </th>
             <th>
             </th>
@@ -103,9 +103,9 @@
                     @duration
                 </td>
                 <td class="align-content-center">
-                    <a href="@GetUrlActionAppointmentDetails(item)" class="btn btn-warning">Details</a>
-                </td>
-                <td class="align-content-center">
+                    @{
+                        bool isFinished = false;
+                    }
                     @if (item.Availability.StartTime <= DateTime.Now && item.Availability.EndTime >= DateTime.Now)
                     {
                         <a onclick="copyText();" href="@ViewBag.VideoCallUrl" class="btn btn-primary" target="_blank">Enter</a>
@@ -116,13 +116,24 @@
                     }
                     else
                     {
+                        isFinished = true;
                         <span class="btn btn-success">Finished</span>
                     }
                 </td>
                 <td class="align-content-center">
-                    <form action="@GetUrlActionCancelAppointment(item)" method="post">
-                        <button type="submit" class="btn btn-danger">Cancel</button>
-                    </form>
+                    <a href="@GetUrlActionAppointmentDetails(item)" class="btn btn-warning">Details</a>
+                </td>
+                <td class="align-content-center">
+                    @if (isFinished)
+                    {
+                        <button type="submit" class="btn btn-outline-danger" disabled>Cancel</button>
+                    }
+                    else
+                    {
+                        <form action="@GetUrlActionCancelAppointment(item)" method="post">
+                            <button type="submit" class="btn btn-danger">Cancel</button>
+                        </form>
+                    }
                 </td>
             </tr>
         }

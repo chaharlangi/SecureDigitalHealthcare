@@ -12,9 +12,9 @@
 }
 
 @functions {
-    public string GetUrlActionSearchDoctorsByLastName()
+    public string GetUrlActionSearchDoctorsByName()
     {
-        return doctorsController.GetActionUrl(nameof(DoctorsController.GetDoctorsByLastName));
+        return doctorsController.GetActionUrl(nameof(DoctorsController.GetDoctorsByName));
     }
     public string GetUrlActionSearchDoctorsBySpeciality()
     {
@@ -30,7 +30,7 @@
     }
 }
 
-<h1>Select your doctor</h1>
+<h3>Select your doctor</h3>
 
 <br />
 
@@ -40,9 +40,9 @@
 
             <br />
 
-            <form action="@GetUrlActionSearchDoctorsByLastName()" method="get">
+            <form action="@GetUrlActionSearchDoctorsByName()" method="get">
                 <div class="input-group mb-3">
-                    <input type="text" name="lastname" class="form-control" placeholder="Search by last name">
+                    <input type="text" name="doctorName" class="form-control" placeholder="Search by last name">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </form>

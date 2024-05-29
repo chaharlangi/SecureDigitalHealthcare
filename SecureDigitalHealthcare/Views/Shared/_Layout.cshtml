@@ -21,6 +21,10 @@
     {
         return appointmentsController.CallAction(c => c.GetDoctorAppointments());
     }
+    private string GetHrefPatientsRecords()
+    {
+        return appointmentsController.CallAction(c => c.GetAllPatientsAppointments("", "", "", "", "", ""));
+    }
 
 }
 
@@ -73,10 +77,13 @@
                                     <a class="nav-link text-success" asp-controller="Doctors" asp-action="GetDoctorAvailabilites" target="_self">Availabilities</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-success" href="@GetHrefDoctorAppointments()" target="_self">Upcoming Appointments</a>
+                                    <a class="nav-link text-success" href="@GetHrefDoctorAppointments()" target="_self">Appointments</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-primary" asp-controller="Account" asp-action="EditProfile" target="_self">Edit Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-secondary" href="@GetHrefPatientsRecords()" target="_self">Patients Records</a>
                                 </li>
                             }
                             else if (AppAuthentication.IsPatient(Context))

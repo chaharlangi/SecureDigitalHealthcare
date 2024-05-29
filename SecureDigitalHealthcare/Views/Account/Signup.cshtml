@@ -32,6 +32,9 @@
         <form action="@GetUrlActionSignup()" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
 
+            <input type="number" id="roleId" name="roleId" value="3" hidden>
+            @* <input type="text" id="ProfileImagePath" name="ProfileImagePath " value="empty" hidden> *@
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group mt-2">
                 <img class="rounded-circle m-3" id="profilePictureImg" src="@GetSrcProfilePicture("Default.jpg")"
@@ -39,7 +42,7 @@
                      width="150"
                      height="150" />
                 <br />
-                <label asp-for="ProfileImagePath" class="control-label">Profile Picture</label>
+                <label class="control-label">Profile Picture</label>
                 <input type="file" name="profilePictureInput" id="profilePictureInput" class="form-control" accept="image/png, image/jpeg, image/jpg" />
                 @* <button id="removeImageButton" class="form-control btn btn-danger">Remove image</button> *@
             </div>

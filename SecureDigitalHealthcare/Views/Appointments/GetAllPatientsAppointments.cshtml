@@ -1,0 +1,193 @@
+﻿@model IEnumerable<SecureDigitalHealthcare.Models.Appointment>
+@using SecureDigitalHealthcare.Controllers
+@using SecureDigitalHealthcare.Utilities
+@using SecureDigitalHealthcare.DTOs
+@inject AppController<FilesController> fileController
+@inject AppController<AccountController> accountController
+@inject AppController<AppointmentsController> appointmentsController
+
+@{
+    ViewData["Title"] = "Upcomming Appointments";
+}
+
+@functions {
+    public string GetUrlActionAppointmentDetails(Appointment appointment)
+    {
+        return appointmentsController.CallAction(c => c.AppointmentDetails(appointment));
+    }
+    public string GetUrlActionSearchAppointment()
+    {
+        return appointmentsController.GetActionUrl(nameof(AppointmentsController.GetAllPatientsAppointments));
+    }
+}
+
+<h3 class="mb-5">Patients Records</h3>
+
+<h5>Search by:</h5>
+
+<div class="row">
+    <div class="col-md-2">
+        <span>Patient Name</span>
+    </div>
+    <div class="col-md-2">
+        <span>Doctor Name</span>
+    </div>
+    <div class="col-md-2">
+        <span>Speciality</span>
+    </div>
+    <div class="col-md-2">
+        <span>Symptoms</span>
+    </div>
+    <div class="col-md-2">
+        <span>Disease</span>
+    </div>
+    <div class="col-md-2">
+        <span>Description</span>
+    </div>
+
+</div>
+<div class="row mb-5">
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="patientName" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="doctorName" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="speciality" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="symptoms" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="disease" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <form action="@GetUrlActionSearchAppointment()" method="get">
+            <div class="input-group">
+                <input type="text" name="description" class="form-control" placeholder="...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                Row
+            </th>
+            <th>
+                Patient
+            </th>
+            <th>
+                Doctor
+            </th>
+            <th>
+                Speciality
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Time
+            </th>
+            <th>
+                Duration
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @{
+            int i = 0;
+        }
+        @foreach (var item in Model)
+        {
+            i++;
+
+            string date = item.Availability.StartTime.ToString("dd-MM-yyyy");
+            string time = item.Availability.StartTime.ToString("HH:mm");
+            string duration = (item.Availability.EndTime - item.Availability.StartTime).TotalMinutes.ToString() + "°";
+
+            <tr>
+                <td class="align-content-center">
+                    @i
+                </td>
+                <td class="align-content-center">
+                    @Html.DisplayFor(modelItem => item.Patient.Name)  @Html.DisplayFor(modelItem => item.Patient.LastName)
+                </td>
+                <td class="align-content-center">
+                    @Html.DisplayFor(modelItem => item.Doctor.IdNavigation.Name)  @Html.DisplayFor(modelItem => item.Doctor.IdNavigation.LastName)
+                </td>
+                <td class="align-content-center">
+                    @Html.DisplayFor(modelItem => item.Doctor.Speciality.Name)
+                </td>
+                <td class="align-content-center">
+                    @date
+                </td>
+                <td class="align-content-center">
+                    @time
+                </td>
+                <td class="align-content-center">
+                    @duration
+                </td>
+            </tr>
+            <tr>
+                <td class="align-content-center">
+                    <p class="fw-bold">Symptoms</p>
+                </td>
+                <td class="align-content-center" colspan="6">
+                    <p class="fw-normal">@item.Symptom</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-content-center">
+                    <p class="fw-bold">Disease</p>
+                </td>
+                <td class="align-content-center" colspan="6">
+                    <p class="fw-normal">@item.Disease</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-content-center">
+                    <p class="fw-bold">Description</p>
+                </td>
+                <td class="align-content-center" colspan="6">
+                    <p class="fw-normal">@item.DoctorDescription</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-content-center bg-light" colspan="7">
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="~/js/CopyAccessToken.js"></script>

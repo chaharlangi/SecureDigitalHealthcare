@@ -72,7 +72,6 @@ namespace SecureDigitalHealthcare.Controllers
                 DoctorId = availability.DoctorId,
                 PatientId = int.Parse(User.FindFirst(ClaimTypes.Sid)!.Value),
                 AvailabilityId = selectedAvailablity.Id,
-                Accepted = false,
                 Done = false,
                 RoomCall = new RoomCall()
                 {
@@ -165,15 +164,6 @@ namespace SecureDigitalHealthcare.Controllers
             _context.Appointments.Update(wantedAppointment);
             await _context.SaveChangesAsync();
 
-            //var wantedAppointment = await _context.Appointments
-            //    .Where(x => x.DoctorId == appointment.DoctorId && x.PatientId == appointment.PatientId && x.AvailabilityId == appointment.AvailabilityId)
-            //    .Include(x => x.Patient)
-            //    .Include(x => x.Doctor)
-            //    .Include(x => x.Doctor.IdNavigation)
-            //    .Include(x => x.Doctor.Speciality)
-            //    .Include(x => x.Availability)
-            //    .Include(x => x.RoomCall).FirstOrDefaultAsync();
-
             return RedirectToAction(nameof(GetDoctorAppointments));
         }
 
@@ -202,5 +192,92 @@ namespace SecureDigitalHealthcare.Controllers
         }
 
 
+        [Authorize(Policy = PolicyConstants.MustBeDoctor)]
+        public IActionResult GetAllPatientsAppointments(string patientName, string doctorName, string speciality, string symptoms, string disease, string description)
+        {
+            IEnumerable<Appointment> appointments;
+
+            if (string.IsNullOrEmpty(patientName) == false)
+            {
+                appointments = _context.Appointments
+                    .Include(x => x.Patient)
+                    .Where(x => x.Patient.Name.Contains(patientName) || x.Patient.LastName.Contains(patientName))
+                    .Include(x => x.Doctor)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Doctor.Speciality)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+            if (string.IsNullOrEmpty(doctorName) == false)
+            {
+                appointments = _context.Appointments
+                    .Include(x => x.Doctor)
+                    .Where(x => x.Doctor.IdNavigation.Name.Contains(doctorName) || x.Doctor.IdNavigation.LastName.Contains(doctorName))
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Doctor.Speciality)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+            if (string.IsNullOrEmpty(speciality) == false)
+            {
+                appointments = _context.Appointments
+                    .Include(x => x.Doctor)
+                    .Include(x => x.Doctor.Speciality)
+                    .Where(x => x.Doctor.Speciality.Name.Contains(speciality))
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+            if (string.IsNullOrEmpty(symptoms) == false)
+            {
+                appointments = _context.Appointments
+                    .Where(x => x.Symptom.Contains(symptoms))
+                    .Include(x => x.Doctor)
+                    .Include(x => x.Doctor.Speciality)
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+            if (string.IsNullOrEmpty(disease) == false)
+            {
+                appointments = _context.Appointments
+                    .Where(x => x.Disease.Contains(disease))
+                    .Include(x => x.Doctor)
+                    .Include(x => x.Doctor.Speciality)
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+            if (string.IsNullOrEmpty(description) == false)
+            {
+                appointments = _context.Appointments
+                    .Where(x => x.DoctorDescription.Contains(description))
+                    .Include(x => x.Doctor)
+                    .Include(x => x.Doctor.Speciality)
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor.IdNavigation)
+                    .Include(x => x.Availability);
+
+                return View(appointments);
+            }
+
+            appointments = _context.Appointments
+                .Include(x => x.Patient)
+                .Include(x => x.Doctor)
+                .Include(x => x.Doctor.IdNavigation)
+                .Include(x => x.Doctor.Speciality)
+                .Include(x => x.Availability);
+
+            return View(appointments);
+        }
     }
 }
