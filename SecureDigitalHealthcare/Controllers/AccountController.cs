@@ -408,7 +408,10 @@ namespace SecureDigitalHealthcare.Controllers
         #endregion
 
 
-
+        public IActionResult AccessDenied()
+        {
+            return Content("You are not athorized to use this section");
+        }
 
 
 

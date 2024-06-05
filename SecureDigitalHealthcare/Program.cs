@@ -44,7 +44,6 @@ if (builder.Environment.IsDevelopment())
             ?? throw new InvalidOperationException("Connection string 'EasyHealthDevelopment' not found."));
         options.EnableSensitiveDataLogging(true);
     });
-
 }
 else
 {
@@ -53,8 +52,6 @@ else
             ?? throw new InvalidOperationException("Connection string 'EasyHealthProduction' not found.")));
 }
 
-
-// Add services To the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors(options =>
@@ -161,15 +158,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-//
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-//               Path.Combine(Directory.GetCurrentDirectory(), "MyRoomCallPlugin", "node_modules")),
-//    RequestPath = new PathString("/vendor")
-//});
-//
-
 app.UseRouting();
 
 app.UseCors("AllowNodeApp");
@@ -183,64 +171,4 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-
-
 app.Run();
-
-
-
-//while (true)
-//{
-//    Console.WriteLine("1. Create Room: ");
-//    Console.WriteLine("2. Delete Room: ");
-//    Console.WriteLine("3. Get Room: ");
-//    Console.WriteLine("4. Get Rooms: ");
-//    Console.WriteLine("5. Add Participants: ");
-//    Console.WriteLine("6. Get Participants: ");
-//    Console.WriteLine("7. Remove Participants: ");
-
-//    Console.Write("\nInput Operation: ");
-//    Console.WriteLine();
-
-//    var input = Console.ReadLine();
-//    if (input is null)
-//        input = "0";
-
-//    RoomCallManager roomCall = new RoomCallManager();
-//    int operation = int.Parse(input);
-
-//    switch (operation)
-//    {
-//        case 1:
-//            Console.WriteLine("input host id");
-//            var hostId = Console.ReadLine();
-//            Console.WriteLine("input guest id");
-//            var guestId = Console.ReadLine();
-//            Console.WriteLine("input remain valid minutes");
-//            var remainValidMinutes = int.Parse(Console.ReadLine());
-//            var room = roomCall.CreateRoomAsync(remainValidMinutes, hostId, guestId);
-
-//            Console.WriteLine("Input any to continue...");
-//            Console.ReadLine();
-//            break;
-//        case 2:
-
-//            break;
-//        case 3:
-
-//            break;
-//        case 4:
-
-//            var rooms = roomCall.GetRoomsAsync();
-
-//            Console.WriteLine("Input any to continue...");
-//            Console.ReadLine();
-//            break;
-//        case 5:
-//            Environment.Exit(0);
-//            break;
-//        default:
-//            Console.Clear();
-//            break;
-//    }
-//}

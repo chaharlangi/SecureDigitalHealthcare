@@ -13,7 +13,7 @@ using SecureDigitalHealthcare.Utilities;
 
 namespace SecureDigitalHealthcare.Controllers
 {
-    [Authorize(Policy = PolicyConstants.MustBePatient)]
+    [Authorize(Policy = PolicyConstants.MustBeAdmin)]
     public class AdminDoctorController : Controller
     {
         private readonly EasyHealthContext _context;
@@ -201,13 +201,8 @@ namespace SecureDigitalHealthcare.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //var doctor = await _context.Doctors.FindAsync(id);
-            //if (doctor != null)
-            //{
-            //    _context.Doctors.Remove(doctor);
-            //}
             var user = await _context.Users.Include(x => x.Doctor).FirstOrDefaultAsync(x => x.Id == id);
-            //return Content($"User deleted: {user.Doctor.SpecialityId}");
+
             if (user != null)
             {
                 _context.Doctors.Remove(user.Doctor);
