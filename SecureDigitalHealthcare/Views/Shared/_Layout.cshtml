@@ -64,6 +64,10 @@
                         {
                             string welcomeMessage = "";
 
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">UTC time: @DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss")</span>
+                            </li>
+
                             if (AppAuthentication.IsDoctor(Context))
                             {
                                 welcomeMessage = $"Hi Doctor {User.Identity.Name}";

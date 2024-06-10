@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using SecureDigitalHealthcare.Constants;
 using SecureDigitalHealthcare.DTOs;
 using SecureDigitalHealthcare.Models;
 using SecureDigitalHealthcare.Utilities;
@@ -66,12 +69,21 @@ namespace SecureDigitalHealthcare.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Doctor doctor, IFormFile profilePictureInput = null)
         {
-            doctor.IdNavigation.RegistrationDate = DateTime.Now;
+
+            if (_context.Users.FirstOrDefault(x => x.Email == doctor.IdNavigation.Email) is not null)
+            {
+                AppDebug.Log("Email already exists");
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.EmailAlreadyExists;
+                ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Name");
+                return View();
+            }
+
+            doctor.IdNavigation.RegistrationDate = DateTime.UtcNow;
 
             doctor.IdNavigation.ProfileImagePath = AccountController.HandleNewProfilePicture(_environment, profilePictureInput);
 
             doctor.IdNavigation.RoleId = AppRole.GetRoleId(AppRole.Doctor);
-            doctor.IdNavigation.RegistrationDate = DateTime.Now;
+            doctor.IdNavigation.RegistrationDate = DateTime.UtcNow;
             doctor.IdNavigation.Password = AppHasher.HashPassword(doctor.IdNavigation.Password!);
 
             if (ModelState.IsValid)
@@ -104,6 +116,7 @@ namespace SecureDigitalHealthcare.Controllers
                 Id = doctor.Id,
                 Name = doctor.IdNavigation.Name,
                 LastName = doctor.IdNavigation.LastName,
+                Email = doctor.IdNavigation.Email,
                 SpecialityId = doctor.Speciality.Id,
                 PhoneNumber = doctor.IdNavigation.PhoneNumber,
                 Address = doctor.IdNavigation.Address,
@@ -126,10 +139,19 @@ namespace SecureDigitalHealthcare.Controllers
                 return NotFound();
             }
 
+            if (_context.Users.FirstOrDefault(x => x.Email == doctor.Email) is not null)
+            {
+                ViewData[ViewDataConstants.ValidationMessage] = Messages.EmailAlreadyExists;
+                ViewData["Id"] = new SelectList(_context.Users, "Id", "Id", doctor.Id);
+                ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Name", doctor.SpecialityId);
+                return View(doctor);
+            }
+
             var user = await _context.Doctors.Include(x => x.IdNavigation).Include(x => x.Speciality).FirstOrDefaultAsync(x => x.Id == id);
 
             user.IdNavigation.Name = doctor.Name;
             user.IdNavigation.LastName = doctor.LastName;
+            user.IdNavigation.Email = doctor.Email;
             user.IdNavigation.PhoneNumber = doctor.PhoneNumber;
             user.IdNavigation.Address = doctor.Address;
             user.IdNavigation.BirthDate = doctor.Birthdate;
@@ -172,7 +194,7 @@ namespace SecureDigitalHealthcare.Controllers
             ViewData["Id"] = new SelectList(_context.Users, "Id", "Id", doctor.Id);
             ViewData["SpecialityId"] = new SelectList(_context.Specialities, "Id", "Name", doctor.SpecialityId);
 
-            return RedirectToAction(nameof(Details), new { id=id});
+            return RedirectToAction(nameof(Details), new { id = id });
             //return RedirectToAction(nameof(Edit),id);
         }
 

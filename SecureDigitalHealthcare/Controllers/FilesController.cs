@@ -122,11 +122,6 @@ namespace SecureDigitalHealthcare.Controllers
                 System.IO.File.WriteAllBytes(filePath, encryptedBytes);
             }
 
-            //using (var fileStream = new FileStream(filePath, FileMode.Create))
-            //{
-            //    profilePictureInput.CopyTo(fileStream);
-            //}
-
             return true;
         }
         public static bool DeleteProfileImage(IWebHostEnvironment _environment, string fileName)

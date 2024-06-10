@@ -138,6 +138,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 
+string myAllowedOrigins = "AllowRoomCallApp";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowedOrigins,
+        policy =>
+        {
+            policy.WithOrigins(VideoCallController.VideoCallUrl)
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -154,6 +166,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want To change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseCors(myAllowedOrigins);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

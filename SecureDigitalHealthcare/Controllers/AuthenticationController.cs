@@ -57,7 +57,7 @@ namespace SecureDigitalHealthcare.Controllers
                                audience: _config.GetValue<string>("Authentication:Audience"),
                                claims: claims,
                                notBefore: DateTime.UtcNow,
-                               expires: DateTime.Now.AddMinutes(1),
+                               expires: DateTime.UtcNow.AddMinutes(1),
                                signingCredentials: signingCredentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

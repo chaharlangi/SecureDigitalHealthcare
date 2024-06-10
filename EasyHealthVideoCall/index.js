@@ -346,7 +346,7 @@ removeLocalVideoStream = async () => {
 hangUpCallButton.addEventListener("click", async () => {
   await call.hangUp();
 });
-
+console.log("index.js loaded");
 //Siavash
 var userAccessTokenValue = "";
 var userRoomIdValue = "";
@@ -370,7 +370,8 @@ function GetRoomIdRequest() {
   let encryptor = new MyAppEncryptor();
 
   const axios = require("axios");
-  const url = "https://localhost:7121/videocall";
+  // const url = "https://localhost:7121/videocall";
+  const url = "https://sdhchaharlangi.azurewebsites.net/videocall";
   const data = {
     encryptedUserAccessToken: encryptor.encryptString(userAccessTokenValue),
     ivBase64: encryptor.getIvBase64(),

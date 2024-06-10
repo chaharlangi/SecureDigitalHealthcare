@@ -61,7 +61,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var availability in Model.Availabilities)
+
+                        @{
+                            var dates = Model.Availabilities.OrderBy(x => x.StartTime.Date).ThenBy(item => item.StartTime.TimeOfDay);
+                        }
+                        @foreach (var availability in dates)
                         {
                             if (availability.Taken == true)
                                 continue;

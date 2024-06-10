@@ -102,6 +102,10 @@
             </div>
         </form>
     </div>
+
+    @{
+        await Html.RenderPartialAsync($"_{ViewDataConstants.ValidationMessage}");
+    }
 </div>
 
 

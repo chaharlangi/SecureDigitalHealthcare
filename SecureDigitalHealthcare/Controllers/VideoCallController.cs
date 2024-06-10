@@ -15,6 +15,8 @@ namespace SecureDigitalHealthcare.Controllers
     [AllowAnonymous]
     public class VideoCallController : Controller
     {
+        public static readonly string VideoCallUrl = "https://EasyHealthCallRoom.azurewebsites.net";
+
         private readonly EasyHealthContext _context;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
@@ -36,7 +38,7 @@ namespace SecureDigitalHealthcare.Controllers
         }
         public static string GetVideoCallUrl()
         {
-            return IsRunningOnAzureAppService() ? "https://easyhealthvideocallplugin.azurewebsites.net/" : "http://localhost:8080/";
+            return IsRunningOnAzureAppService() ? VideoCallUrl : "http://localhost:8080/";
         }
 
         public IActionResult Index(string encryptedUserAccessToken, string ivBase64)

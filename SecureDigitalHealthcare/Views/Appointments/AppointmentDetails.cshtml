@@ -44,7 +44,7 @@
 
         <div class="form-group mt-3">
             @{
-                string age = $"{(DateTime.Now.Year - Model.Patient.BirthDate.Year)}";
+                string age = $"{(DateTime.UtcNow.Year - Model.Patient.BirthDate.Year)}";
                 string duration = $"{(Model.Availability.EndTime - Model.Availability.StartTime).TotalMinutes}";
             }
             <p class="fw-normal">@Model.Patient.Name @Model.Patient.LastName</p>

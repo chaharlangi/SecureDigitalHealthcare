@@ -98,11 +98,11 @@
                     <a href="@GetUrlActionAppointmentDetails(item)" class="btn btn-warning">Details</a>
                 </td>
                 <td class="align-content-center">
-                    @if (item.Availability.StartTime <= DateTime.Now && item.Availability.EndTime >= DateTime.Now)
+                    @if (item.Availability.StartTime <= DateTime.UtcNow && item.Availability.EndTime >= DateTime.UtcNow)
                     {
                         <a onclick="copyText();" href="@ViewBag.VideoCallUrl" class="btn btn-primary" target="_blank">Enter</a>
                     }
-                    else if (item.Availability.EndTime >= DateTime.Now)
+                    else if (item.Availability.EndTime >= DateTime.UtcNow)
                     {
                         <span class="btn btn-outline-success">Pending</span>
                     }

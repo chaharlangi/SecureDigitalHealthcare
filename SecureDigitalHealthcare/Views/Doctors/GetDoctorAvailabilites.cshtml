@@ -107,12 +107,12 @@
                 <input type="hidden" name="@nameof(AvailabilityDTO.DoctorId)" value="@AppAuthentication.GetCurrentUserId(User)" />
             <td>
                 <div class="form-group">
-                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.StartTime)" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.StartTime)" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" />
                 </div>
             </td>
             <td>
                 <div class="form-group">
-                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.EndTime)" value="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                    <input class="form-control" type="datetime-local" name="@nameof(AvailabilityDTO.EndTime)" value="@DateTime.UtcNow.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
                 </div>
             </td>
             <td>

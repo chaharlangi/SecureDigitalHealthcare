@@ -109,7 +109,7 @@ namespace SecureDigitalHealthcare.Controllers
                 ViewData[ViewDataConstants.ValidationMessage] = Messages.EmailAlreadyExists;
                 return View();
             }
-            if (DateTime.Now - user.BirthDate < TimeSpan.FromDays(365 * 18))
+            if (DateTime.UtcNow - user.BirthDate < TimeSpan.FromDays(365 * 18))
             {
                 ViewData[ViewDataConstants.ValidationMessage] = Messages.YouMustBe18;
                 return View();
@@ -121,14 +121,12 @@ namespace SecureDigitalHealthcare.Controllers
             await AppAuthentication.SignIn(HttpContext, user.Id, user.Name!, user.Email, AppRole.Patient, true);
 
             return RedirectToAction("Index", "Home");
-
-
         }
 
         public static async Task<User> AddNewUser(EasyHealthContext context, User user)
         {
             user.RoleId = AppRole.GetRoleId(AppRole.Patient);
-            user.RegistrationDate = DateTime.Now;
+            user.RegistrationDate = DateTime.UtcNow;
             user.Password = AppHasher.HashPassword(user.Password!);
 
             var addedUser = context.Users.Add(user);
@@ -439,14 +437,11 @@ namespace SecureDigitalHealthcare.Controllers
 
         private async Task<bool> SendEmail(string email, string subject, string message)
         {
-
             AppDebug.Log($"{message}");
 
             IAppSender sender = new AppEmailSender().Setup(email, subject, message);
 
             return await sender.Send();
-
-            return true;
         }
         private async Task<bool> SetPassword(EasyHealthContext context, string email, string newPassword)
         {

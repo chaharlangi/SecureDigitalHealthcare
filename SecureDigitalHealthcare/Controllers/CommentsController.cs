@@ -33,7 +33,7 @@ namespace SecureDigitalHealthcare.Controllers
                 ReceiverId = receiverId,
                 ReplyTo = replayToId,
                 Text = textComment,
-                Date = DateTime.Now
+                Date = DateTime.UtcNow
             };
             _context.Comments.Add(comment);
 
